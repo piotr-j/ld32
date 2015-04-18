@@ -1,0 +1,27 @@
+
+packed.png
+size: 319,230
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+milk-rocket
+  rotate: false
+  xy: 260, 224
+  size: 59, 6
+  orig: 59, 6
+  offset: 0, 0
+  index: -1
+milk-rocket-launcher
+  rotate: false
+  xy: 2, 2
+  size: 84, 98
+  orig: 84, 98
+  offset: 0, 0
+  index: -1
+ufo1
+  rotate: false
+  xy: 2, 102
+  size: 256, 128
+  orig: 256, 128
+  offset: 0, 0
+  index: -1
