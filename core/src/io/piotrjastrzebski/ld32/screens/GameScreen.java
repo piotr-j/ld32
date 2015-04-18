@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -48,14 +47,12 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private final Stage stage;
 	private Console console;
 	private final InputMultiplexer multiplexer;
-	private final Skin skin;
 
 	private StateSerializer serializer;
 
 	public GameScreen (LD32 base) {
 		super(base);
 		prefs = Gdx.app.getPreferences(PREFS);
-		skin = assets.getSkin();
 		multiplexer = new InputMultiplexer();
 		stage = new Stage(new ScreenViewport(), batch);
 		multiplexer.addProcessor(stage);
@@ -77,7 +74,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		Gdx.input.setInputProcessor(multiplexer);
 
 		serializer = new StateSerializer(this);
-		game = new Game(this);
+		game = new Game(this, assets);
 		initState();
 		createGUI();
 		updateGUI();

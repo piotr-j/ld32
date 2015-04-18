@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import io.piotrjastrzebski.ld32.Constants;
+import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.state.State;
 
 /**
@@ -28,7 +29,7 @@ public class Game implements Telegraph {
 
 	protected final MessageDispatcher dispatcher;
 
-	public Game (ILogger logger) {
+	public Game (ILogger logger, Assets assets) {
 		this.logger = logger;
 		dispatcher = MessageManager.getInstance();
 

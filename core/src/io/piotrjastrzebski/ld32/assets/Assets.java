@@ -9,13 +9,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
  */
 public class Assets {
 	public final static String SKIN = "ui/uiskin.json";
+	public final static String ATLAS = "pack/packed.atlas";
 	private AssetManager manager;
 	private boolean isDone;
 	private Skin skin;
+	private TextureAtlas atlas;
 
 	public Assets () {
 		manager = new AssetManager();
 		manager.load(SKIN, Skin.class);
+		manager.load(ATLAS, TextureAtlas.class);
 	}
 
 	public boolean update () {
@@ -28,11 +31,13 @@ public class Assets {
 
 	private void finalizeLoading () {
 		skin = manager.get(SKIN, Skin.class);
+		atlas = manager.get(ATLAS, TextureAtlas.class);
 
 	}
 
 	public TextureAtlas.AtlasRegion getRegion (String name) {
-		return null;
+		// TODO cache
+		return atlas.findRegion(name);
 	}
 
 	public boolean isFinalized () {
