@@ -1,0 +1,27 @@
+{resources: [
+    {
+        name: space-bux
+
+    },{
+        name: ice
+
+    },{
+        name: life-support
+
+    },{
+        name: rocket-fuel
+
+    },{
+        name: helium-3
+
+    },{
+        name: titanium
+
+    },{
+        name: crew
+
+    },{
+        name: energy
+
+    }
+]}
