@@ -1,5 +1,9 @@
 package io.piotrjastrzebski.ld32.game.state;
 
+import com.badlogic.gdx.utils.Array;
+import io.piotrjastrzebski.ld32.game.Building;
+import io.piotrjastrzebski.ld32.game.Resource;
+
 import java.math.BigDecimal;
 
 /**
@@ -11,11 +15,26 @@ public class State {
 	 * TimeStamp can't be long, as GWT reflection doesn't support it.
 	 */
 	public BigDecimal ts;
-	public BigDecimal spaceBux;
+
+	private Array<Resource> resources;
+	private Array<Building> buildings;
+
+	transient private boolean isFresh = false;
 
 	public State () {
 		ts = currentTS();
-		spaceBux = BigDecimal.valueOf(0L);
+		resources = new Array<>();
+		buildings = new Array<>();
+	}
+
+	public State (boolean fresh) {
+		this();
+		isFresh = true;
+	}
+
+	public void clear() {
+		resources.clear();
+		buildings.clear();
 	}
 
 	public void updateTS () {
@@ -31,14 +50,48 @@ public class State {
 	}
 
 	@Override public String toString () {
-		return super.toString();
+		return "State";
 	}
 
-	public void addSpaceBux (long toAdd) {
-		spaceBux = spaceBux.add(getBC(toAdd));
+	public void addResource(Resource resource) {
+		if (getResource(resource.name) == null) {
+			resources.add(resource);
+		}
 	}
 
-	private BigDecimal getBC (long val) {
-		return BigDecimal.valueOf(val);
+	public Resource getResource(String name) {
+		for (Resource resource: resources) {
+			if (resource.name.equals(name)) {
+				return resource;
+			}
+		}
+		return null;
+	}
+
+	public void addBuilding(Building building) {
+		if (getBuilding(building.name) == null) {
+			buildings.add(building);
+		}
+	}
+
+	public Building getBuilding (String name) {
+		for (Building building: buildings) {
+			if (building.name.equals(name)) {
+				return building;
+			}
+		}
+		return null;
+	}
+
+	public Array<Resource> getResources () {
+		return resources;
+	}
+
+	public Array<Building> getBuildings () {
+		return buildings;
+	}
+
+	public boolean isFresh () {
+		return isFresh;
 	}
 }
