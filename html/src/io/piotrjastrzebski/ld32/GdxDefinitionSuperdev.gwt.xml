@@ -4,6 +4,7 @@
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.kotcrab.vis.vis-ui' />
 	<inherits name='com.strongjoshua.console' />
+	<inherits name='com.badlogic.gdx.ai' />
 
 	<inherits name='io.piotrjastrzebski.ld32.GdxDefinition' />
 
@@ -13,6 +14,10 @@
 	<set-configuration-property name="devModeRedirectEnabled" value="true"/>
 	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
 
-	<extend-configuration-property name="gdx.reflect.include" value="cio.piotrjastrzebski.ld32.game.state" />
+	<extend-configuration-property name="gdx.reflect.include" value="io.piotrjastrzebski.ld32.game.state.State" />
+	<extend-configuration-property name="gdx.reflect.include" value="io.piotrjastrzebski.ld32.game.Building" />
+	<extend-configuration-property name="gdx.reflect.include" value="io.piotrjastrzebski.ld32.game.Resource" />
+	<extend-configuration-property name="gdx.reflect.include" value="io.piotrjastrzebski.ld32.game.ResourceGenerator" />
+
 	<extend-configuration-property name="gdx.reflect.include" value="java.math.BigDecimal" />
 </module>
