@@ -14,6 +14,7 @@ public class Constants {
 		public final static String TITANIUM = "titanium";
 		public final static String ENERGY = "energy";
 	}
+
 	public class Building {
 		public final static String SPACE_BANK = "space-bank";
 		public final static String CREW_HABITAT = "crew-habitat";

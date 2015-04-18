@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -60,6 +61,12 @@ public class GameScreen extends BaseScreen implements ILogger {
 		multiplexer.addProcessor(stage);
 
 		VisUI.load();
+		// enabled markup so we can color text
+		BitmapFont defFont = VisUI.getSkin().get("default-font", BitmapFont.class);
+		defFont.setMarkupEnabled(true);
+		BitmapFont smallFont = VisUI.getSkin().get("small-font", BitmapFont.class);
+		defFont.setMarkupEnabled(true);
+
 		console = new Console(VisUI.getSkin(), false);
 		console.setKeyID(Input.Keys.F2);
 //		console.setCommandExecutor(new GameCE(this));
@@ -105,19 +112,19 @@ public class GameScreen extends BaseScreen implements ILogger {
 		log(TAG, "State saved!");
 	}
 
-	ObjectMap<String, VisLabel> resourceLabels;
-	ObjectMap<String, VisTextButton> buyButtons;
 	public static int buyAmount = BUY_1;
+
 	private void createGUI () {
 		stage.clear();
 		VisTable root = new VisTable(true);
 		root.setFillParent(true);
 		stage.addActor(root);
 
-		final VisTextButton buyAmountButton = new VisTextButton("Buy "+buyAmount);
+		final VisTextButton buyAmountButton = new VisTextButton("Buy " + buyAmount);
 		buyAmountButton.addListener(new ClickListener() {
 			@Override public void clicked (InputEvent event, float x, float y) {
 				switch (buyAmount) {
+				// TODO support buy all
 				case BUY_1:
 					buyAmount = BUY_10;
 					buyAmountButton.setText("Buy 10");
@@ -129,69 +136,21 @@ public class GameScreen extends BaseScreen implements ILogger {
 				case BUY_100:
 //					buyAmount = BUY_ALL;
 					buyAmount = BUY_1;
-					buyAmountButton.setText("Buy ALL");
+					buyAmountButton.setText("Buy 1");
 					break;
 //				case BUY_ALL:
 //					buyAmount = BUY_1;
 //					buyAmountButton.setText("Buy 1");
 //					break;
 				}
+				updateBuyButtons();
 			}
 		});
 		root.add(buyAmountButton);
 		root.row();
 
-		State state = game.getState();
-		VisTable ressTable = new VisTable(true);
-		resourceLabels = new ObjectMap<>();
-		for (Resource resource:state.getResources()) {
-			VisTable resTable = new VisTable(true);
-			// TODO get i18n string for name
-			VisLabel resLabel = new VisLabel(resource.name);
-			resTable.add(resLabel);
-			VisLabel resValue = new VisLabel(resource.toString());
-			resTable.add(resValue);
-			resourceLabels.put(resource.name, resValue);
-			ressTable.add(resTable).row();
-		}
-		root.add(ressTable).row();
-
-		VisTable buyTable = new VisTable(true);
-		buyButtons = new ObjectMap<>();
-		final int buyAmount = 1;
-		for (final Building building:state.getBuildings()) {
-			VisTable buildTable = new VisTable(true);
-			// TODO get i18n string for name
-			final VisTextButton buyBtn = new VisTextButton(building.name + " x" + building.getAmount());
-
-			buyBtn.row();
-			ObjectMap<String, BigDecimal> costs = building.calculateCost(1);
-			String costsText = "";
-			for (ObjectMap.Entry<String, BigDecimal> entry:costs.entries()) {
-				costsText += entry.key + " x"+ NumberFormatter.formatEngineer(entry.value);
-			}
-			final VisLabel costLabel = new VisLabel("Buy " + buyAmount + " for " + costsText);
-
-			buyBtn.add(costLabel);
-			buildTable.add(buyBtn);
-			buyBtn.addListener(new ClickListener() {
-				@Override public void clicked (InputEvent event, float x, float y) {
-					if(building.buy(game.getState(), buyAmount)) {
-						buyBtn.setText(building.name + " x" + building.getAmount());
-
-						ObjectMap<String, BigDecimal> costs = building.calculateCost(buyAmount);
-						String costsText = "";
-						for (ObjectMap.Entry<String, BigDecimal> entry:costs.entries()) {
-							costsText += entry.key + " x"+ NumberFormatter.formatEngineer(entry.value);
-						}
-						costLabel.setText("Buy " + buyAmount + " for " + costsText);
-					}
-				}
-			});
-			buyButtons.put(building.name, buyBtn);
-			buyTable.add(buildTable).row();
-		}
-		root.add(buyTable).row();
+		root.add(createResourceGUI()).row();
+		root.add(createBuyGUI()).row();
 
 		root.row();
 		VisTextButton resetButton = new VisTextButton("Reset state!");
@@ -200,9 +159,92 @@ public class GameScreen extends BaseScreen implements ILogger {
 				game.init(new State(true));
 				saveState();
 				createGUI();
+				updateGUI();
 			}
 		});
 		root.add(resetButton);
+	}
+
+	ObjectMap<String, VisLabel> resourceLabels;
+
+	private VisTable createResourceGUI () {
+		State state = game.getState();
+
+		resourceLabels = new ObjectMap<>();
+
+		VisTable container = new VisTable(true);
+		for (Resource resource : state.getResources()) {
+			VisTable resTable = new VisTable(true);
+
+			// TODO get i18n string for name
+			VisLabel resLabel = new VisLabel(resource.name);
+			resTable.add(resLabel);
+			VisLabel resValue = new VisLabel(resource.getAmountAsString());
+			resTable.add(resValue);
+
+			resourceLabels.put(resource.name, resValue);
+			container.add(resTable).row();
+		}
+		return container;
+	}
+
+	ObjectMap<String, VisTextButton> buyButtons;
+	ObjectMap<String, VisLabel> buyCostLabels;
+
+	private VisTable createBuyGUI () {
+		State state = game.getState();
+
+		buyButtons = new ObjectMap<>();
+		buyCostLabels = new ObjectMap<>();
+
+		VisTable buyTable = new VisTable(true);
+		for (final Building building : state.getBuildings()) {
+			VisTable buildTable = new VisTable(true);
+			// TODO get i18n string for name
+			final VisTextButton buyBtn = new VisTextButton("");
+			buyBtn.row();
+			final VisLabel costLabel = new VisLabel("");
+			buyBtn.add(costLabel);
+
+			buildTable.add(buyBtn);
+			buyBtn.addListener(new ClickListener() {
+				@Override public void clicked (InputEvent event, float x, float y) {
+					buyBuilding(building);
+				}
+			});
+
+			buyButtons.put(building.name, buyBtn);
+			buyCostLabels.put(building.name, costLabel);
+			buyTable.add(buildTable).row();
+		}
+		return buyTable;
+	}
+
+	private void buyBuilding(Building building) {
+		if (building.buy(game.getState(), buyAmount)) {
+			updateResources();
+			updateBuyButton(building);
+		}
+	}
+
+	private void updateBuyButton(Building building) {
+		VisTextButton button = buyButtons.get(building.name);
+		VisLabel label = buyCostLabels.get(building.name);
+		button.setText(building.name + " x" + building.getAmount());
+
+		State state = game.getState();
+
+		ObjectMap<String, BigDecimal> costs = building.calculateCost(buyAmount);
+		String costsText = "";
+		for (ObjectMap.Entry<String, BigDecimal> entry : costs.entries()) {
+			// TODO better colors [#xxxxxx]
+			String tint = "[GREEN]";
+			if (state.getResource(entry.key).getAmount().compareTo(entry.value) < 0) {
+				tint = "[RED]";
+			}
+			costsText += " "+entry.key + " x " + tint + NumberFormatter.formatEngineer(entry.value)+"[]";
+		}
+		label.setText("Buy " + buyAmount + " for " + costsText);
 	}
 
 	private float saveTimer = 0;
@@ -220,13 +262,21 @@ public class GameScreen extends BaseScreen implements ILogger {
 	}
 
 	private void updateGUI () {
+		updateResources();
+		updateBuyButtons();
+	}
+
+	private void updateResources() {
 		State state = game.getState();
-		for (Resource resource:state.getResources()) {
+		for (Resource resource : state.getResources()) {
 			resourceLabels.get(resource.name).setText(resource.getAmountAsString());
 		}
+	}
 
-		for (Building building:state.getBuildings()) {
-
+	private void updateBuyButtons() {
+		State state = game.getState();
+		for (Building building : state.getBuildings()) {
+			updateBuyButton(building);
 		}
 	}
 

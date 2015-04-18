@@ -5,8 +5,6 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.game.state.State;
 
@@ -99,7 +97,7 @@ public class Game implements Telegraph {
 
 	}
 
-	public void tap() {
+	public void tap () {
 
 	}
 

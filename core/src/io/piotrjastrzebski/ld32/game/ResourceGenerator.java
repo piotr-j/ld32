@@ -16,7 +16,8 @@ public class ResourceGenerator {
 	// multiplier when adding values
 	private BigDecimal multiplier;
 
-	public ResourceGenerator() {}
+	public ResourceGenerator () {
+	}
 
 	public ResourceGenerator (String resource) {
 		this.resourceType = resource;
@@ -50,9 +51,12 @@ public class ResourceGenerator {
 
 	public void tick (State state, long mult) {
 		Resource resource = state.getResource(resourceType);
-		if (mult == 0) return;
-		if (amount.equals(BigDecimal.ZERO)) return;
-		if (multiplier.equals(BigDecimal.ZERO)) return;
+		if (mult == 0)
+			return;
+		if (amount.equals(BigDecimal.ZERO))
+			return;
+		if (multiplier.equals(BigDecimal.ZERO))
+			return;
 		resource.add(amount.multiply(multiplier).multiply(BigDecimal.valueOf(mult)));
 	}
 }

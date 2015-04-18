@@ -32,7 +32,7 @@ public class State {
 		isFresh = true;
 	}
 
-	public void clear() {
+	public void clear () {
 		resources.clear();
 		buildings.clear();
 	}
@@ -53,14 +53,14 @@ public class State {
 		return "State";
 	}
 
-	public void addResource(Resource resource) {
+	public void addResource (Resource resource) {
 		if (getResource(resource.name) == null) {
 			resources.add(resource);
 		}
 	}
 
-	public Resource getResource(String name) {
-		for (Resource resource: resources) {
+	public Resource getResource (String name) {
+		for (Resource resource : resources) {
 			if (resource.name.equals(name)) {
 				return resource;
 			}
@@ -68,14 +68,14 @@ public class State {
 		return null;
 	}
 
-	public void addBuilding(Building building) {
+	public void addBuilding (Building building) {
 		if (getBuilding(building.name) == null) {
 			buildings.add(building);
 		}
 	}
 
 	public Building getBuilding (String name) {
-		for (Building building: buildings) {
+		for (Building building : buildings) {
 			if (building.name.equals(name)) {
 				return building;
 			}
