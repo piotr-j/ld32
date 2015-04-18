@@ -1,6 +1,5 @@
 package io.piotrjastrzebski.ld32.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import io.piotrjastrzebski.ld32.game.state.State;
@@ -86,7 +85,6 @@ public class Building {
 	}
 
 	public boolean buy (State state, int amount) {
-		Gdx.app.log("", "buy: " + amount + " " + GameScreen.buyAmount);
 		ObjectMap<String, BigDecimal> costs = calculateCost(amount);
 		// check if we have required resources
 		for (ObjectMap.Entry<String, BigDecimal> costData : costs) {

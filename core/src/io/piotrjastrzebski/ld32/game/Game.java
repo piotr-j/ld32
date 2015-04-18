@@ -4,7 +4,10 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.state.State;
@@ -14,6 +17,10 @@ import io.piotrjastrzebski.ld32.game.state.State;
  * Created by EvilEntity on 18/04/2015.
  */
 public class Game implements Telegraph {
+	public final static float VP_WIDTH = 40.0f;
+	public final static float VP_HEIGHT = 22.5f;
+	public final static float SCALE = 1.f/32.f;
+
 	// number of ticks that occur each seconds
 	public final static int TICKS_PER_S = 1;
 	// fraction of second per each tick
@@ -25,12 +32,26 @@ public class Game implements Telegraph {
 
 	private State state;
 	private ILogger logger;
+	private Assets assets;
 	private boolean isInit;
 
 	protected final MessageDispatcher dispatcher;
+	private boolean isVisible;
+
+	private OrthographicCamera camera;
+	private ExtendViewport viewport;
+
+	TextureAtlas.AtlasSprite ufo;
 
 	public Game (ILogger logger, Assets assets) {
 		this.logger = logger;
+		camera = new OrthographicCamera();
+		viewport = new ExtendViewport(VP_WIDTH, VP_HEIGHT, camera);
+
+		ufo = new TextureAtlas.AtlasSprite(assets.getRegion("ufo1"));
+		ufo.setPosition(0, 0);
+		ufo.setSize(ufo.getWidth() * SCALE, ufo.getHeight() * SCALE);
+
 		dispatcher = MessageManager.getInstance();
 
 		// TODO load buildings and resources from json
@@ -117,9 +138,13 @@ public class Game implements Telegraph {
 	}
 
 	public void draw (Batch batch) {
-		if (!isInit)
+		if (!isInit || !isVisible)
 			return;
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		ufo.draw(batch);
 
+		batch.end();
 	}
 
 	private void tick (long times) {
@@ -147,5 +172,17 @@ public class Game implements Telegraph {
 
 	@Override public boolean handleMessage (Telegram msg) {
 		return false;
+	}
+
+	public void visible () {
+		isVisible = true;
+	}
+
+	public void hidden () {
+		isVisible = false;
+	}
+
+	public void resize(int width, int height) {
+		viewport.update(width, height, true);
 	}
 }

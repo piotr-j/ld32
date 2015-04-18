@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -109,13 +110,92 @@ public class GameScreen extends BaseScreen implements ILogger {
 		log(TAG, "State saved!");
 	}
 
-	public static int buyAmount = BUY_1;
+	public int buyAmount = BUY_1;
+	public final static String TAB_PRODUCTION = "production";
+	public final static String TAB_DEFENSE = "defense";
+	public final static String TAB_TECH = "tech";
 
+	private ObjectMap<String, VisTable> tabs;
+	private VisTable tabSelectors;
+	private VisTable tabContainer;
+	private ButtonGroup<VisTextButton> tabButtonGroup;
 	private void createGUI () {
 		stage.clear();
 		VisTable root = new VisTable(true);
 		root.setFillParent(true);
 		stage.addActor(root);
+
+		root.add(createResourceGUI()).expandX().fillX();
+		root.row();
+
+		tabButtonGroup = new ButtonGroup<>();
+		tabButtonGroup.setMinCheckCount(1);
+		tabButtonGroup.setMaxCheckCount(1);
+		tabSelectors = new VisTable(true);
+		VisTextButton selectProd = new VisTextButton(TAB_PRODUCTION, "toggle");
+		selectProd.addListener(new ClickListener() {
+			@Override public void clicked (InputEvent event, float x, float y) {
+				selectTab(TAB_PRODUCTION);
+			}
+		});
+		tabButtonGroup.add(selectProd);
+		tabSelectors.add(selectProd);
+
+		VisTextButton selectTech = new VisTextButton(TAB_TECH, "toggle");
+		selectTech.addListener(new ClickListener() {
+			@Override public void clicked (InputEvent event, float x, float y) {
+				selectTab(TAB_TECH);
+			}
+		});
+		tabButtonGroup.add(selectTech);
+		tabSelectors.add(selectTech);
+
+		VisTextButton selectDef = new VisTextButton(TAB_DEFENSE, "toggle");
+		selectDef.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				selectTab(TAB_DEFENSE);
+			}
+		});
+		tabButtonGroup.add(selectDef);
+		tabSelectors.add(selectDef);
+		root.add(tabSelectors).fillX().expandX();
+		root.row();
+
+		tabs = new ObjectMap<>();
+		tabContainer = new VisTable(true);
+		tabs.put(TAB_PRODUCTION, createProductionTab());
+		tabs.put(TAB_DEFENSE, createDefenseTab());
+		tabs.put(TAB_TECH, createTechTab());
+		selectTab(TAB_PRODUCTION);
+		root.add(tabContainer).fill().expand();
+	}
+
+	private String currentTab = "";
+	private void selectTab(String name) {
+		if (currentTab.equals(name)) return;
+		currentTab = name;
+		tabContainer.clear();
+		tabContainer.add(tabs.get(name)).expand().fill();
+		switch (name) {
+		case TAB_DEFENSE:
+			log(TAG, "Selected "+TAB_DEFENSE);
+			game.hidden();
+			break;
+
+		case TAB_TECH:
+			log(TAG, "Selected "+TAB_TECH);
+			game.visible();
+			break;
+
+		case TAB_PRODUCTION:
+			log(TAG, "Selected "+TAB_PRODUCTION);
+			game.hidden();
+			break;
+		}
+	}
+
+	private VisTable createProductionTab() {
+		VisTable tab = new VisTable(true);
 
 		final VisTextButton buyAmountButton = new VisTextButton("Buy " + buyAmount);
 		buyAmountButton.addListener(new ClickListener() {
@@ -143,13 +223,12 @@ public class GameScreen extends BaseScreen implements ILogger {
 				updateBuyButtons();
 			}
 		});
-		root.add(buyAmountButton);
-		root.row();
+		tab.add(buyAmountButton);
+		tab.row();
 
-		root.add(createResourceGUI()).row();
-		root.add(createBuyGUI()).row();
+		tab.add(createBuyGUI()).row();
+		tab.row();
 
-		root.row();
 		VisTextButton resetButton = new VisTextButton("Reset state!");
 		resetButton.addListener(new ClickListener() {
 			@Override public void clicked (InputEvent event, float x, float y) {
@@ -159,7 +238,23 @@ public class GameScreen extends BaseScreen implements ILogger {
 				updateGUI();
 			}
 		});
-		root.add(resetButton);
+		tab.add(resetButton);
+
+		return tab;
+	}
+
+	private VisTable createDefenseTab() {
+		VisTable tab = new VisTable(true);
+		tab.add(new VisLabel(TAB_DEFENSE));
+
+		return tab;
+	}
+
+	private VisTable createTechTab() {
+		VisTable tab = new VisTable(true);
+		tab.add(new VisLabel(TAB_TECH));
+
+		return tab;
 	}
 
 	ObjectMap<String, VisLabel> resourceLabels;
@@ -180,7 +275,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 			resTable.add(resValue);
 
 			resourceLabels.put(resource.name, resValue);
-			container.add(resTable).row();
+			container.add(resTable);
 		}
 		return container;
 	}
@@ -280,10 +375,6 @@ public class GameScreen extends BaseScreen implements ILogger {
 	@Override public void draw () {
 		Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//		batch.begin();
-//
-//		batch.end();
-
 		game.draw(batch);
 		stage.draw();
 		console.draw();
@@ -293,6 +384,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		super.resize(width, height);
 		stage.getViewport().update(width, height, true);
 		console.refresh();
+		game.resize(width, height);
 	}
 
 	@Override public void pause () {
