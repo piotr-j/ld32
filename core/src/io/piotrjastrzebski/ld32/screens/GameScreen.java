@@ -178,17 +178,17 @@ public class GameScreen extends BaseScreen implements ILogger {
 		tabContainer.add(tabs.get(name)).expand().fill();
 		switch (name) {
 		case TAB_DEFENSE:
-			log(TAG, "Selected "+TAB_DEFENSE);
-			game.hidden();
-			break;
-
-		case TAB_TECH:
-			log(TAG, "Selected "+TAB_TECH);
+			log(TAG, "Selected " + TAB_DEFENSE);
 			game.visible();
 			break;
 
+		case TAB_TECH:
+			log(TAG, "Selected " + TAB_TECH);
+			game.hidden();
+			break;
+
 		case TAB_PRODUCTION:
-			log(TAG, "Selected "+TAB_PRODUCTION);
+			log(TAG, "Selected " + TAB_PRODUCTION);
 			game.hidden();
 			break;
 		}
