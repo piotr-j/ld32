@@ -63,9 +63,9 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisUI.load();
 		// enabled markup so we can color text
 		BitmapFont defFont = VisUI.getSkin().get("default-font", BitmapFont.class);
-		defFont.setMarkupEnabled(true);
+		defFont.getData().markupEnabled = true;
 		BitmapFont smallFont = VisUI.getSkin().get("small-font", BitmapFont.class);
-		defFont.setMarkupEnabled(true);
+		smallFont.getData().markupEnabled = true;
 
 		console = new Console(VisUI.getSkin(), false);
 		console.setKeyID(Input.Keys.F2);
@@ -230,7 +230,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private void updateBuyButton(Building building) {
 		VisTextButton button = buyButtons.get(building.name);
 		VisLabel label = buyCostLabels.get(building.name);
-		button.setText(building.name + " x" + building.getAmount());
+		button.setText(building.name + " " + building.getAmount());
 
 		State state = game.getState();
 
@@ -242,9 +242,9 @@ public class GameScreen extends BaseScreen implements ILogger {
 			if (state.getResource(entry.key).getAmount().compareTo(entry.value) < 0) {
 				tint = "[RED]";
 			}
-			costsText += " "+entry.key + " x " + tint + NumberFormatter.formatEngineer(entry.value)+"[]";
+			costsText += entry.key + " x " + tint + NumberFormatter.formatEngineer(entry.value)+"[]";
 		}
-		label.setText("Buy " + buyAmount + " for " + costsText);
+		label.setText("Buy " + buyAmount + "  " + costsText);
 	}
 
 	private float saveTimer = 0;
