@@ -34,6 +34,10 @@ public abstract class BaseScreen implements Screen, Telegraph {
 		camera = (OrthographicCamera)viewport.getCamera();
 	}
 
+	protected void playBtnSound () {
+		assets.playSound(Assets.S_BUTTON);
+	}
+
 	public abstract void update (float delta);
 
 	public abstract void draw ();

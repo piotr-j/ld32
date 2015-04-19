@@ -124,8 +124,25 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisTable root = new VisTable(true);
 		root.setFillParent(true);
 		stage.addActor(root);
-
-		root.add(createResourceGUI()).expandX().fillX();
+		final VisTextButton soundToggle = new VisTextButton("Sound OFF", "toggle");
+		soundToggle.setChecked(false);
+		soundToggle.addListener(new ClickListener() {
+			@Override public void clicked (InputEvent event, float x, float y) {
+				boolean sound = !assets.isSoundEnabled();
+				assets.setSoundEnabled(sound);
+				if (sound) {
+					soundToggle.setText("Sound ON");
+				} else {
+					soundToggle.setText("Sound OFF");
+				}
+				soundToggle.setChecked(sound);
+				playBtnSound();
+			}
+		});
+		VisTable topContainer = new VisTable(true);
+		topContainer.add(soundToggle).pad(10);
+		topContainer.add(createResourceGUI()).expandX().fillX();
+		root.add(topContainer).expandX().fillX();
 		root.row();
 
 		tabButtonGroup = new ButtonGroup<>();
@@ -135,6 +152,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisTextButton selectProd = new VisTextButton(TAB_PRODUCTION, "toggle");
 		selectProd.addListener(new ClickListener() {
 			@Override public void clicked (InputEvent event, float x, float y) {
+				playBtnSound();
 				selectTab(TAB_PRODUCTION);
 			}
 		});
@@ -144,6 +162,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisTextButton selectTech = new VisTextButton(TAB_TECH, "toggle");
 		selectTech.addListener(new ClickListener() {
 			@Override public void clicked (InputEvent event, float x, float y) {
+				playBtnSound();
 				selectTab(TAB_TECH);
 			}
 		});
@@ -153,6 +172,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisTextButton selectDef = new VisTextButton(TAB_DEFENSE, "toggle");
 		selectDef.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				playBtnSound();
 				selectTab(TAB_DEFENSE);
 			}
 		});
@@ -200,6 +220,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		final VisTextButton buyAmountButton = new VisTextButton("Buy " + buyAmount);
 		buyAmountButton.addListener(new ClickListener() {
 			@Override public void clicked (InputEvent event, float x, float y) {
+				playBtnSound();
 				switch (buyAmount) {
 				// TODO support buy all
 				case BUY_1:
@@ -302,6 +323,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 			buyBtn.addListener(new ClickListener() {
 				@Override public void clicked (InputEvent event, float x, float y) {
 					buyBuilding(building);
+					playBtnSound();
 				}
 			});
 

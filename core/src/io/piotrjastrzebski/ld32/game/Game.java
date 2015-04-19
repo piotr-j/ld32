@@ -236,6 +236,7 @@ public class Game implements Telegraph {
 		ParticleEffectPool.PooledEffect effect = milkExpEffectPool.obtain();
 		effect.setPosition(x, y);
 		effects.add(effect);
+		assets.playSound(Assets.S_EXP_2);
 	}
 
 	public void draw (Batch batch) {

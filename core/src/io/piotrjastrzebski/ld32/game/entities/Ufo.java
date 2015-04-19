@@ -58,6 +58,8 @@ public class Ufo extends Entity {
 	float deathTimer = 0;
 	float idleTimer = 0;
 
+	boolean deadSound = false;
+
 	@Override public void update (float delta) {
 		if (justSpawned) {
 			spawnTimer+=delta;
@@ -75,10 +77,14 @@ public class Ufo extends Entity {
 		sprite.setPosition(sprite.getX(), sprite.getY()-offset);
 
 		if (isDead()) {
+			if (!deadSound) {
+				deadSound = true;
+				assets.playSound(Assets.S_UFO_DEATH);
+			}
 			deathTimer += delta;
-			float clamp = MathUtils.clamp(1 - deathTimer, 0, 1);
+			float clamp = MathUtils.clamp(1 - deathTimer/2, 0, 1);
 			sprite.setColor(1, 1, 1, clamp);
-			sprite.setScale(1);
+			sprite.setScale(clamp);
 			sprite.setPosition(sprite.getX(), sprite.getY()-0.1f);
 			if (deathTimer >= 5) {
 				needsRemoval = true;
