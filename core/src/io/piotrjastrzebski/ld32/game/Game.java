@@ -29,6 +29,7 @@ import java.util.Iterator;
  * Created by EvilEntity on 18/04/2015.
  */
 public class Game implements Telegraph {
+	public final static boolean DEBUG_DRAW = false;
 	public final static float VP_WIDTH = 40.0f;
 	public final static float VP_HEIGHT = 22.5f;
 	public final static float SCALE = 1.f/32.f;
@@ -81,8 +82,8 @@ public class Game implements Telegraph {
 		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 
 		turretArray = new Array<>();
-		Turret milkLauncher = new Turret(assets);
-		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 5);
+		Turret milkLauncher = new Turret(assets, "milk-rocket");
+		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 3);
 		turretArray.add(milkLauncher);
 
 		projectiles = new Array<>();
@@ -242,9 +243,6 @@ public class Game implements Telegraph {
 			return;
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		for (Turret turret: turretArray) {
-			turret.draw(batch);
-		}
 		for(Ufo ufo:ufos) {
 			ufo.draw(batch);
 		}
@@ -254,20 +252,24 @@ public class Game implements Telegraph {
 		for(Projectile projectile: projectiles) {
 			projectile.draw(batch);
 		}
+		for (Turret turret: turretArray) {
+			turret.draw(batch);
+		}
 		batch.end();
-
-		shapeRenderer.setProjectionMatrix(camera.combined);
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-		for (Entity entity: turretArray) {
-			entity.drawBounds(shapeRenderer);
+		if (DEBUG_DRAW) {
+			shapeRenderer.setProjectionMatrix(camera.combined);
+			shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+			for (Entity entity : turretArray) {
+				entity.drawBounds(shapeRenderer);
+			}
+			for (Ufo ufo : ufos) {
+				ufo.drawBounds(shapeRenderer);
+			}
+			for (Projectile projectile : projectiles) {
+				projectile.drawBounds(shapeRenderer);
+			}
+			shapeRenderer.end();
 		}
-		for(Ufo ufo:ufos) {
-			ufo.drawBounds(shapeRenderer);
-		}
-		for(Projectile projectile: projectiles) {
-			projectile.drawBounds(shapeRenderer);
-		}
-		shapeRenderer.end();
 	}
 
 	private void tick (long times) {
@@ -292,12 +294,13 @@ public class Game implements Telegraph {
 		logger.log(tag, msg);
 	}
 
-	private void fireMissile (Vector2 target, String type) {
+	private void fireMissile (Turret turret) {
 		Projectile projectile = projectilePool.obtain();
-		projectile.setAsset("milk-rocket");
-		projectile.setPosition(6, 5);
+		projectile.setAsset(turret.getProjType());
+		Vector2 spawn = turret.getProjSpawn();
+		projectile.setPosition(spawn.x, spawn.y);
 		projectile.setDamage(1L);
-		projectile.setTarget(target.x, target.y);
+		projectile.setTarget(turret.getTarget());
 		projectiles.add(projectile);
 	}
 
@@ -311,7 +314,7 @@ public class Game implements Telegraph {
 	@Override public boolean handleMessage (Telegram msg) {
 		switch (msg.message) {
 		case Msg.FIRE_MILK_MISSILE:
-			fireMissile((Vector2)msg.extraInfo, "milk-missile");
+			fireMissile((Turret)msg.extraInfo);
 			break;
 
 		}

@@ -10,9 +10,10 @@ import io.piotrjastrzebski.ld32.game.Msg;
  */
 public class Turret extends Entity {
 	private Ufo target;
-
-	public Turret (Assets assets) {
+	private String projType;
+	public Turret (Assets assets, String projType) {
 		super(assets);
+		this.projType = projType;
 	}
 
 	public void target(Ufo target) {
@@ -20,6 +21,13 @@ public class Turret extends Entity {
 			this.target = target;
 	}
 
+	@Override public Entity setPosition (float x, float y) {
+		super.setPosition(x, y);
+		projSpawn.set(x+0.5f, y+2f);
+		return this;
+	}
+
+	Vector2 projSpawn = new Vector2();
 	Vector2 targetPos = new Vector2();
 	// cooldown in seconds
 	float FIRE_COOLDOWN = 1;
@@ -46,12 +54,24 @@ public class Turret extends Entity {
 			targetPos.set(
 				target.getX()+xOffset+MathUtils.random(-radius, radius),
 				target.getY()+yOffset+MathUtils.random(-radius, radius));
-			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, targetPos);
+			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, this);
 		}
 	}
 
 	@Override public void reset() {
 		target = null;
 		fireCD = 0;
+	}
+
+	public Vector2 getTarget () {
+		return targetPos;
+	}
+
+	public Vector2 getProjSpawn() {
+		return projSpawn;
+	}
+
+	public String getProjType () {
+		return projType;
 	}
 }
