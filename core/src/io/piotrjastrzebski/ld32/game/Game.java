@@ -65,6 +65,19 @@ public class Game implements Telegraph {
 
 	Pool<Projectile> projectilePool;
 
+	private float[] launcherPositions = {
+		8, 1, 0,
+		3, 7, 0,
+		1, 10, 0,
+		3, 3, 0,
+		VP_WIDTH - 8, 1, 1,
+		VP_WIDTH - 3, 7, 1,
+		VP_WIDTH - 1, 10, 1,
+		VP_WIDTH - 3, 3, 1
+	};
+
+	private final int maxLaunchers = 8;
+
 	public Game (ILogger logger, final Assets assets) {
 		this.logger = logger;
 		this.assets = assets;
@@ -82,20 +95,10 @@ public class Game implements Telegraph {
 		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 
 		turretArray = new Array<>();
-		Turret milkLauncher = new Turret(assets, "milk-rocket");
-		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 3);
-		turretArray.add(milkLauncher);
-		Turret milkLauncher2 = new Turret(assets, "milk-rocket");
-		milkLauncher2.setAsset("milk-rocket-launcher").setPosition(3, 7);
-		turretArray.add(milkLauncher2);
-		Turret milkLauncher3 = new Turret(assets, "milk-rocket");
-		milkLauncher3.setAsset("milk-rocket-launcher").setPosition(VP_WIDTH - 6-milkLauncher.getWidth(), 3);
-		milkLauncher3.getSprite().flip(true, false);
-		turretArray.add(milkLauncher3);
-		Turret milkLauncher4 = new Turret(assets, "milk-rocket");
-		milkLauncher4.setAsset("milk-rocket-launcher").setPosition(VP_WIDTH - 3-milkLauncher.getWidth(), 7);
-		milkLauncher4.getSprite().flip(true, false);
-		turretArray.add(milkLauncher4);
+
+		for (int i = 0; i < 8; i++) {
+			addLauncher();
+		}
 
 		projectiles = new Array<>();
 		projectilePool = new Pool<Projectile>() {
@@ -106,6 +109,22 @@ public class Game implements Telegraph {
 
 		shapeRenderer = new ShapeRenderer();
 
+	}
+
+	int currentLauncher = 0;
+	public void addLauncher() {
+		if (currentLauncher >= maxLaunchers) return;
+		int id = currentLauncher*3;
+		float x = launcherPositions[id];
+		float y = launcherPositions[id+1];
+		boolean flipX = launcherPositions[id+2]>0.5;
+
+		Turret turret = new Turret(assets, "milk-rocket");
+		turret.setAsset("milk-rocket-launcher").setPosition(x - (flipX?turret.getWidth():0), y);
+		turret.getSprite().flip(flipX, false);
+		turretArray.add(turret);
+
+		currentLauncher++;
 	}
 
 	public void init (State state) {
