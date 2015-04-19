@@ -303,17 +303,17 @@ public class GameScreen extends BaseScreen implements ILogger {
 		tab.add(createBuyGUI()).row();
 		tab.row();
 
-		VisTextButton resetButton = new VisTextButton("Reset state!");
-		resetButton.addListener(new ClickListener() {
-			@Override public void clicked (InputEvent event, float x, float y) {
-				game.init(new State(true));
-				saveState();
-				createGUI();
-				updateGUI();
-				selectTab(TAB_PRODUCTION);
-			}
-		});
-		tab.add(resetButton);
+//		VisTextButton resetButton = new VisTextButton("Reset state!");
+//		resetButton.addListener(new ClickListener() {
+//			@Override public void clicked (InputEvent event, float x, float y) {
+//				game.init(new State(true));
+//				saveState();
+//				createGUI();
+//				updateGUI();
+//				selectTab(TAB_PRODUCTION);
+//			}
+//		});
+//		tab.add(resetButton);
 
 		return tab;
 	}
