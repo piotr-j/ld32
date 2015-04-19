@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.Game;
@@ -19,10 +20,12 @@ public abstract class Entity implements Pool.Poolable, Telegraph{
 	protected final MessageDispatcher dispatcher;
 	protected TextureAtlas.AtlasSprite sprite;
 	protected Assets assets;
+	private Vector2 pos;
 
 	public Entity(Assets assets) {
 		this.assets = assets;
 		dispatcher = MessageManager.getInstance();
+		pos = new Vector2();
 	}
 
 	public Entity setAsset(String name) {
@@ -34,6 +37,7 @@ public abstract class Entity implements Pool.Poolable, Telegraph{
 
 	public Entity setPosition(float x, float y) {
 		sprite.setPosition(x, y);
+		pos.set(x, y);
 		return this;
 	}
 
@@ -78,5 +82,9 @@ public abstract class Entity implements Pool.Poolable, Telegraph{
 			sprite.getWidth(), sprite.getHeight(),
 			sprite.getScaleX(), sprite.getScaleY(),
 			sprite.getRotation());
+	}
+
+	public Vector2 getPos () {
+		return pos;
 	}
 }
