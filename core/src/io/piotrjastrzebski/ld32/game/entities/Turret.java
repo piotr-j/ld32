@@ -52,8 +52,8 @@ public class Turret extends Entity {
 			float yOffset = target.getHeight()/2;
 			float radius = target.getRadius();
 			targetPos.set(
-				target.getX()+xOffset+MathUtils.random(-radius, radius),
-				target.getY()+yOffset+MathUtils.random(-radius, radius));
+				target.getX()+xOffset+MathUtils.random(-radius/2, radius/2),
+				target.getY()+yOffset+MathUtils.random(-radius/2, radius/2));
 			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, this);
 		}
 	}
