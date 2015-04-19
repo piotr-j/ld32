@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -28,7 +29,7 @@ import java.util.Iterator;
  * Main entry point for game
  * Created by EvilEntity on 18/04/2015.
  */
-public class Game implements Telegraph {
+public class Game implements Telegraph, Building.BuyListener {
 	public final static boolean DEBUG_DRAW = false;
 	public final static float VP_WIDTH = 40.0f;
 	public final static float VP_HEIGHT = 22.5f;
@@ -96,10 +97,10 @@ public class Game implements Telegraph {
 		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 
 		turretArray = new Array<>();
-
-		for (int i = 0; i < 8; i++) {
-			addLauncher();
-		}
+//
+//		for (int i = 0; i < 8; i++) {
+//			addLauncher();
+//		}
 
 		projectiles = new Array<>();
 		projectilePool = new Pool<Projectile>() {
@@ -136,11 +137,35 @@ public class Game implements Telegraph {
 		if (state.isFresh()) {
 			initFreshState();
 		}
+		initListeners();
+		Building building = state.getBuilding(Constants.Building.MILK_LAUNCHER);
+		for (int i = 0; i < building.amount; i++) {
+			addLauncher();
+		}
+		Building building2 = state.getBuilding(Constants.Building.MILK_LAUNCHER_UPGRADE_ROCKETS);
+		for (int i = 0; i < building2.amount; i++) {
+			addRockets();
+		}
+		Building building3 = state.getBuilding(Constants.Building.MILK_LAUNCHER_UPGRADE_DAMAGE);
+		for (int i = 0; i < building3.amount; i++) {
+			upgradeDamage();
+		}
+		Building building4 = state.getBuilding(Constants.Building.MILK_LAUNCHER_UPGRADE_RELOAD);
+		for (int i = 0; i < building4.amount; i++) {
+			upgradeReloadSpeed();
+		}
 		long diff = (state.currentTS().subtract(state.getTS()).longValue()) / MS_PER_TICK;
 		if (diff > 0) {
 			// add diff ticks to the game state
 			log(TAG, "State diff: " + diff);
 			tick(diff);
+		}
+	}
+
+	private void initListeners () {
+		Array<Building> buildings = state.getBuildings();
+		for (Building building:buildings) {
+			building.setBuyListener(this);
 		}
 	}
 
@@ -188,10 +213,75 @@ public class Game implements Telegraph {
 		iceRefinery.addInitialCost(ice.name, 20);
 		state.addBuilding(iceRefinery);
 
+
+		Building turret = new Building(Constants.Building.MILK_LAUNCHER);
+		turret.addInitialCost(spaceBux.name, 100);
+		turret.addInitialCost(ice.name, 200);
+		turret.addInitialCost(lifeSupport.name, 200);
+		state.addBuilding(turret);
+
+		Building turretUpgradeDamage = new Building(Constants.Building.MILK_LAUNCHER_UPGRADE_DAMAGE);
+		turretUpgradeDamage.addInitialCost(spaceBux.name, 300);
+		turretUpgradeDamage.addInitialCost(ice.name, 300);
+		turretUpgradeDamage.addInitialCost(rocketFuel.name, 400);
+		state.addBuilding(turretUpgradeDamage);
+
+		Building turretUpgradeReload = new Building(Constants.Building.MILK_LAUNCHER_UPGRADE_RELOAD);
+		turretUpgradeReload.addInitialCost(spaceBux.name, 250);
+		turretUpgradeReload.addInitialCost(ice.name, 500);
+		turretUpgradeReload.addInitialCost(rocketFuel.name, 600);
+		turretUpgradeReload.setMaxAmount(10);
+		state.addBuilding(turretUpgradeReload);
+
+		Building turretUpgradeRockets = new Building(Constants.Building.MILK_LAUNCHER_UPGRADE_ROCKETS);
+		turretUpgradeRockets.addInitialCost(spaceBux.name, 1000);
+		turretUpgradeRockets.addInitialCost(ice.name, 3000);
+		turretUpgradeRockets.addInitialCost(rocketFuel.name, 2000);
+		turretUpgradeRockets.setMaxAmount(4);
+		state.addBuilding(turretUpgradeRockets);
+
 	}
 
-	public void tap (float x, float y) {
+	int rockets = 1;
+	private void addRockets() {
+		rockets++;
+		for (Turret turret:turretArray) {
+			turret.setNumRocketsPerShot(rockets);
+		}
+	}
+	float reloadSpeed = 5.5f;
+	private void upgradeReloadSpeed() {
+		reloadSpeed-=0.5f;
+		for (Turret turret:turretArray) {
+			turret.setFireCoolDown(reloadSpeed);
+		}
+	}
 
+	long damage = 1;
+	private void upgradeDamage() {
+		damage+= 1;
+	}
+
+	public void tap () {
+		fireMissile();
+	}
+
+	int lastTurretId = 0;
+	private void fireMissile () {
+		if (turretArray.size == 0) return;
+		if (lastTurretId >= turretArray.size) {
+			lastTurretId = 0;
+		}
+		Turret turret = turretArray.get(lastTurretId);
+		if (turret.getUfo().isDead() || !turret.getUfo().isAttackable()) return;
+		Projectile projectile = projectilePool.obtain();
+		projectile.setAsset(turret.getProjType());
+		Vector2 spawn = turret.getProjSpawn();
+		projectile.setPosition(spawn.x, spawn.y);
+		projectile.setDamage(damage);
+		projectile.setTarget(turret.getTarget());
+		projectiles.add(projectile);
+		lastTurretId++;
 	}
 
 	private float tickAcc = 0;
@@ -331,7 +421,7 @@ public class Game implements Telegraph {
 		projectile.setAsset(turret.getProjType());
 		Vector2 spawn = turret.getProjSpawn();
 		projectile.setPosition(spawn.x, spawn.y);
-		projectile.setDamage(1L);
+		projectile.setDamage(damage);
 		projectile.setTarget(turret.getTarget());
 		projectiles.add(projectile);
 	}
@@ -365,5 +455,31 @@ public class Game implements Telegraph {
 
 	public void resize(int width, int height) {
 		viewport.update(width, height, true);
+	}
+
+	@Override public void buySuccess (Building building) {
+		// TODO this is shit
+		switch (building.name) {
+		case Constants.Building.MILK_LAUNCHER:
+			addLauncher();
+			break;
+		case Constants.Building.MILK_LAUNCHER_UPGRADE_ROCKETS:
+			addRockets();
+			break;
+		case Constants.Building.MILK_LAUNCHER_UPGRADE_DAMAGE:
+			upgradeDamage();
+			break;
+		case Constants.Building.MILK_LAUNCHER_UPGRADE_RELOAD:
+			upgradeReloadSpeed();
+			break;
+		}
+	}
+
+	@Override public void buyFailed (Building building) {
+
+	}
+
+	public boolean isVisible () {
+		return isVisible;
 	}
 }

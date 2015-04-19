@@ -31,9 +31,9 @@ public class Turret extends Entity {
 	Vector2 projSpawn = new Vector2();
 	Vector2 targetPos = new Vector2();
 	// cooldown in seconds
-	float fireCoolDown = 5;
+	float fireCoolDown = 5.5f;
 	float currentCoolDown = MathUtils.random(0, fireCoolDown);
-	int numRockets = 4;
+	int numRockets = 1;
 
 	@Override public void update (float delta) {
 		if (target == null) {
@@ -69,6 +69,10 @@ public class Turret extends Entity {
 		targetPos.set(target.getX() + xOffset + MathUtils.random(-radius / 2, radius / 2),
 			target.getY() + yOffset + MathUtils.random(-radius / 2, radius / 2));
 		return targetPos;
+	}
+
+	public Ufo getUfo (){
+		return target;
 	}
 
 	Vector2 nextSpawn = new Vector2();

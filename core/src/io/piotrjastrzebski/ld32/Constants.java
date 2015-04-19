@@ -21,5 +21,9 @@ public class Constants {
 		public final static String ICE_REFINERY = "ice-refinery";
 		public final static String ICE_HARVESTER = "ice-harvester";
 		public final static String SOLAR_FARM = "ice-refinery";
+		public final static String MILK_LAUNCHER = "milk-rocket-launcher";
+		public final static String MILK_LAUNCHER_UPGRADE_ROCKETS = "mrl-rockets";
+		public final static String MILK_LAUNCHER_UPGRADE_RELOAD = "mrl-reload";
+		public static final String MILK_LAUNCHER_UPGRADE_DAMAGE = "mrl-damage";
 	}
 }

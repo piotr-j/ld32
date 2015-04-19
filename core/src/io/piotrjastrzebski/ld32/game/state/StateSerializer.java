@@ -50,7 +50,7 @@ public class StateSerializer {
 			// can fail if data contains invalid characters
 			decoded = Base64.decode(data.getBytes());
 		} catch (IllegalArgumentException e) {
-			logger.log(TAG, "Loading from data failed");
+			logger.log(TAG, "Loading from data failed " +e.getMessage());
 			return null;
 		}
 
@@ -60,7 +60,7 @@ public class StateSerializer {
 		try {
 			gameState = json.fromJson(State.class, b64d);
 		} catch (SerializationException e) {
-			logger.log(TAG, "Loading from data failed");
+			logger.log(TAG, "Loading from data failed " +e.getMessage());
 			return null;
 		}
 		return gameState;

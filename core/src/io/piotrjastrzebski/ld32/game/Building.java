@@ -17,6 +17,7 @@ public class Building {
 	public String name;
 	// 2 billion should be enough for now
 	int amount = 0;
+	int maxAmount = -1;
 
 	// how much does it cost to build next one
 	ObjectMap<String, BigDecimal> initialCosts;
@@ -91,6 +92,9 @@ public class Building {
 			Resource resource = state.getResource(costData.key);
 			// cant buy if we have less then needed
 			if (resource.getAmount().compareTo(costData.value) == -1) {
+				if (listener!= null) {
+					listener.buyFailed(this);
+				}
 				return false;
 			}
 		}
@@ -101,10 +105,32 @@ public class Building {
 		}
 		// add requested amount
 		addAmount(amount);
+		if (listener!= null) {
+			listener.buySuccess(this);
+		}
 		return true;
 	}
 
 	public int getAmount () {
 		return amount;
+	}
+
+	public void setMaxAmount(int max) {
+		maxAmount = max;
+	}
+
+	public boolean hasNext(){
+		if (maxAmount == -1) return true;
+		return maxAmount > amount;
+	}
+
+	private transient BuyListener listener;
+	public void setBuyListener (BuyListener listener) {
+		this.listener = listener;
+	}
+
+	public interface BuyListener {
+		void buySuccess(Building building);
+		void buyFailed(Building building);
 	}
 }

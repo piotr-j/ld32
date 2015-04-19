@@ -8,10 +8,15 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
@@ -19,6 +24,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.strongjoshua.console.Console;
+import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.LD32;
 import io.piotrjastrzebski.ld32.game.Building;
 import io.piotrjastrzebski.ld32.game.Game;
@@ -122,11 +128,25 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private VisTable tabSelectors;
 	private VisTable tabContainer;
 	private ButtonGroup<VisTextButton> tabButtonGroup;
+	VisLabel tapLabel;
 	private void createGUI () {
 		stage.clear();
-		VisTable root = new VisTable(true);
+
+		tapLabel = new VisLabel();
+		stage.addActor(tapLabel);
+		tapLabel.setColor(1,1,1,0);
+
+		final VisTable root = new VisTable(true);
 		root.setFillParent(true);
 		stage.addActor(root);
+		root.setTouchable(Touchable.enabled);
+		root.addListener(new ClickListener() {
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (root == event.getTarget()) {
+					tapped(x, y);
+				}
+			}
+		});
 		final VisTextButton soundToggle = new VisTextButton("Sound OFF", "toggle");
 		soundToggle.setChecked(false);
 		soundToggle.addListener(new ClickListener() {
@@ -191,6 +211,26 @@ public class GameScreen extends BaseScreen implements ILogger {
 		tabs.put(TAB_TECH, createTechTab());
 		selectTab(TAB_PRODUCTION);
 		root.add(tabContainer).fill().expand();
+	}
+	private void tapped (float x, float y) {
+		if (game.isVisible()){
+			// todo get correct coordinates at fire there or something
+			game.tap();
+		} else {
+			// TODO amount from tech or something
+			Resource spaceBux = game.getState().getResource(Constants.Resources.SPACE_BUX);
+			spaceBux.add(BigDecimal.valueOf(1L));
+			Resource ice = game.getState().getResource(Constants.Resources.ICE);
+			ice.add(BigDecimal.valueOf(1L));
+			final VisLabel label = new VisLabel();
+			stage.addActor(label);
+			label.setText("+1 SB +1 ICE");
+			label.setPosition(x + label.getWidth() / 2, y + label.getHeight() / 2);
+			label.clearActions();
+			label.setColor(0,0.7f,0,1);
+			label.addAction(Actions.sequence(Actions.fadeOut(1), Actions.removeActor()));
+			updateResources();
+		}
 	}
 
 	private String currentTab = "";
@@ -275,7 +315,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 
 	private VisTable createTechTab() {
 		VisTable tab = new VisTable(true);
-		tab.add(new VisLabel(TAB_TECH));
+		tab.add(new VisLabel("NOT YET IMPLEMENTED"));
 
 		return tab;
 	}
@@ -313,6 +353,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		buyCostLabels = new ObjectMap<>();
 
 		VisTable buyTable = new VisTable(true);
+		int id = 0;
 		for (final Building building : state.getBuildings()) {
 			VisTable buildTable = new VisTable(true);
 			// TODO get i18n string for name
@@ -320,18 +361,27 @@ public class GameScreen extends BaseScreen implements ILogger {
 			buyBtn.row();
 			final VisLabel costLabel = new VisLabel("");
 			buyBtn.add(costLabel);
-
+			if (!building.hasNext()) {
+				buyBtn.setDisabled(true);
+			}
 			buildTable.add(buyBtn);
 			buyBtn.addListener(new ClickListener() {
 				@Override public void clicked (InputEvent event, float x, float y) {
 					buyBuilding(building);
+					if (!building.hasNext()) {
+						buyBtn.setDisabled(true);
+					}
 					playBtnSound();
 				}
 			});
 
 			buyButtons.put(building.name, buyBtn);
 			buyCostLabels.put(building.name, costLabel);
-			buyTable.add(buildTable).row();
+			buyTable.add(buildTable);
+			if (id > 0 && id % 2 != 0) {
+				buyTable.row();
+			}
+			id++;
 		}
 		return buyTable;
 	}
@@ -358,7 +408,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 			if (state.getResource(entry.key).getAmount().compareTo(entry.value) < 0) {
 				tint = "[RED]";
 			}
-			costsText += entry.key + " x " + tint + NumberFormatter.formatEngineer(entry.value)+"[]";
+			costsText += entry.key + " x " + tint + NumberFormatter.formatEngineer(entry.value)+"[] ";
 		}
 		label.setText("Buy " + buyAmount + "  " + costsText);
 	}
