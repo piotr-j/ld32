@@ -24,15 +24,17 @@ public class Turret extends Entity {
 
 	@Override public Entity setPosition (float x, float y) {
 		super.setPosition(x, y);
-		projSpawn.set(x+0.5f, y+2f);
+		projSpawn.set(x+0.5f, y+1.5f);
 		return this;
 	}
 
 	Vector2 projSpawn = new Vector2();
 	Vector2 targetPos = new Vector2();
 	// cooldown in seconds
-	float FIRE_COOLDOWN = 1;
-	float fireCD = FIRE_COOLDOWN;
+	float fireCoolDown = 5;
+	float currentCoolDown = MathUtils.random(0, fireCoolDown);
+	int numRockets = 4;
+
 	@Override public void update (float delta) {
 		if (target == null) {
 			return;
@@ -45,31 +47,40 @@ public class Turret extends Entity {
 			return;
 		}
 		// fire if off cool down
-		fireCD+=delta;
-		if (fireCD >= FIRE_COOLDOWN) {
-			fireCD -= FIRE_COOLDOWN;
+		currentCoolDown +=delta;
+		if (currentCoolDown >= fireCoolDown) {
+			currentCoolDown -= fireCoolDown;
 			// TODO use radius to plot random position
-			float xOffset = target.getWidth()/2;
-			float yOffset = target.getHeight()/2;
-			float radius = target.getRadius();
-			targetPos.set(
-				target.getX()+xOffset+MathUtils.random(-radius/2, radius/2),
-				target.getY()+yOffset+MathUtils.random(-radius/2, radius/2));
-			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, this);
+			for (int i = 0; i < numRockets; i++) {
+				dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, this);
+			}
 		}
 	}
 
 	@Override public void reset() {
 		target = null;
-		fireCD = 0;
+		currentCoolDown = 0;
 	}
 
 	public Vector2 getTarget () {
+		float xOffset = target.getWidth()/2;
+		float yOffset = target.getHeight()/2;
+		float radius = target.getRadius();
+		targetPos.set(target.getX() + xOffset + MathUtils.random(-radius / 2, radius / 2),
+			target.getY() + yOffset + MathUtils.random(-radius / 2, radius / 2));
 		return targetPos;
 	}
 
+	Vector2 nextSpawn = new Vector2();
+	float ySpawnOffset = 0;
+	float ySpawnOffsetPerRocket = 0.3f;
 	public Vector2 getProjSpawn() {
-		return projSpawn;
+		if (ySpawnOffset >= ySpawnOffsetPerRocket *3.5f) {
+			ySpawnOffset = 0;
+		}
+		nextSpawn.set(projSpawn).add(0, ySpawnOffset);
+		ySpawnOffset += ySpawnOffsetPerRocket;
+		return nextSpawn;
 	}
 
 	public String getProjType () {
@@ -78,5 +89,19 @@ public class Turret extends Entity {
 
 	public TextureAtlas.AtlasSprite getSprite () {
 		return sprite;
+	}
+
+	/**
+	 * Cooldown between shots
+	 */
+	public void setFireCoolDown (float cooldown) {
+		this.fireCoolDown = cooldown;
+	}
+
+	/**
+	 * Number of rockets per shot 1-4
+	 */
+	public void setNumRocketsPerShot(int numRockets) {
+		this.numRockets = MathUtils.clamp(numRockets, 1, 4);
 	}
 }

@@ -69,7 +69,7 @@ public class Game implements Telegraph {
 		this.logger = logger;
 		this.assets = assets;
 		effects = new Array<>();
-		milkExpEffectPool = new ParticleEffectPool(assets.getMilkExpEffect(), 5, 10);
+		milkExpEffectPool = new ParticleEffectPool(assets.getMilkExpEffect(), 4, 32);
 
 
 		camera = new OrthographicCamera();
