@@ -94,7 +94,6 @@ public class Game implements Telegraph, Building.BuyListener {
 		dispatcher.addListener(this, Msg.CREATE_EXP);
 
 		ufos = new Array<>();
-		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 
 		turretArray = new Array<>();
 //
@@ -160,6 +159,7 @@ public class Game implements Telegraph, Building.BuyListener {
 			log(TAG, "State diff: " + diff);
 			tick(diff);
 		}
+		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 	}
 
 	private void initListeners () {
@@ -273,6 +273,7 @@ public class Game implements Telegraph, Building.BuyListener {
 			lastTurretId = 0;
 		}
 		Turret turret = turretArray.get(lastTurretId);
+		if (turret.getUfo() == null) return;
 		if (turret.getUfo().isDead() || !turret.getUfo().isAttackable()) return;
 		Projectile projectile = projectilePool.obtain();
 		projectile.setAsset(turret.getProjType());
@@ -428,9 +429,11 @@ public class Game implements Telegraph, Building.BuyListener {
 
 	private void spawnUfo(float x, float y) {
 		Ufo ufo = new Ufo(assets);
-		ufo.setRadius(3).setHealth(10).setAsset("ufo1")
+		int ufoLevel = state.getUfoLevel() + 1;
+		ufo.setRadius(3).setHealth(10*ufoLevel).setAsset("ufo1")
 			.setPosition(x - ufo.getWidth() / 2, y - ufo.getHeight() / 2);
 		ufos.add(ufo);
+		state.setUfoLevel(ufoLevel);
 	}
 
 	@Override public boolean handleMessage (Telegram msg) {

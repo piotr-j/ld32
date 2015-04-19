@@ -18,6 +18,7 @@ public class State {
 
 	private Array<Resource> resources;
 	private Array<Building> buildings;
+	private int ufoLevel = 1;
 
 	transient private boolean isFresh = false;
 
@@ -93,5 +94,13 @@ public class State {
 
 	public boolean isFresh () {
 		return isFresh;
+	}
+
+	public int getUfoLevel () {
+		return ufoLevel;
+	}
+
+	public void setUfoLevel (int ufoLevel) {
+		this.ufoLevel = ufoLevel;
 	}
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -218,16 +219,21 @@ public class GameScreen extends BaseScreen implements ILogger {
 			game.tap();
 		} else {
 			// TODO amount from tech or something
-			Resource spaceBux = game.getState().getResource(Constants.Resources.SPACE_BUX);
-			spaceBux.add(BigDecimal.valueOf(1L));
-			Resource ice = game.getState().getResource(Constants.Resources.ICE);
-			ice.add(BigDecimal.valueOf(1L));
+			State state = game.getState();
+			Building iceB = state.getBuilding(Constants.Building.ICE_HARVESTER);
+			Building sbB = state.getBuilding(Constants.Building.SPACE_BANK);
+			Resource spaceBux = state.getResource(Constants.Resources.SPACE_BUX);
+			long sbAmount = MathUtils.clamp((long)(sbB.getAmount() * 0.1f), 1L, Long.MAX_VALUE);
+			long iceAmount = MathUtils.clamp((long)(iceB.getAmount()*0.1f), 1L, Long.MAX_VALUE);
+			spaceBux.add(BigDecimal.valueOf(sbAmount));
+			Resource ice = state.getResource(Constants.Resources.ICE);
+			ice.add(BigDecimal.valueOf(iceAmount));
 			final VisLabel label = new VisLabel();
 			stage.addActor(label);
-			label.setText("+1 SB +1 ICE");
+			label.setText("+"+sbAmount+" SB +"+iceAmount+" ICE");
 			label.setPosition(x + label.getWidth() / 2, y + label.getHeight() / 2);
 			label.clearActions();
-			label.setColor(0,0.7f,0,1);
+			label.setColor(0, 0.7f, 0, 1);
 			label.addAction(Actions.sequence(Actions.fadeOut(1), Actions.removeActor()));
 			updateResources();
 		}
