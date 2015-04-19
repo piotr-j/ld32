@@ -15,13 +15,14 @@ public class Turret extends Entity {
 	}
 
 	public void target(Ufo target) {
-		this.target = target;
+		if (this.target == null)
+			this.target = target;
 	}
 
 	Vector2 targetPos = new Vector2();
 	// cooldown in seconds
 	float FIRE_COOLDOWN = 1;
-	float fireCD = 0;
+	float fireCD = FIRE_COOLDOWN;
 	@Override public void update (float delta) {
 		if (target == null) {
 			return;
@@ -30,12 +31,15 @@ public class Turret extends Entity {
 			target = null;
 			return;
 		}
+		if (!target.isAttackable()) {
+			return;
+		}
 		// fire if off cool down
 		fireCD+=delta;
 		if (fireCD >= FIRE_COOLDOWN) {
 			fireCD -= FIRE_COOLDOWN;
 			// TODO use radius to plot random position
-			targetPos.set(target.getX(), target.getY());
+			targetPos.set(target.getX()+target.getWidth()/2, target.getY()+target.getHeight()/2);
 			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, targetPos);
 		}
 	}

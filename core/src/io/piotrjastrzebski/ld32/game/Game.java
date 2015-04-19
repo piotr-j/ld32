@@ -6,7 +6,6 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
@@ -55,7 +54,7 @@ public class Game implements Telegraph {
 
 	ShapeRenderer shapeRenderer;
 
-	Array<Entity> entityArray;
+	Array<Turret> turretArray;
 	Array<Projectile> projectiles;
 	Array<Ufo> ufos;
 
@@ -75,18 +74,15 @@ public class Game implements Telegraph {
 		dispatcher = MessageManager.getInstance();
 		dispatcher.addListener(this, Msg.FIRE_MILK_MISSILE);
 
-		entityArray = new Array<>();
-		projectiles = new Array<>();
 		ufos = new Array<>();
-		Ufo ufo = new Ufo(assets);
-		ufo.setRadius(5).setHealth(10).setAsset("ufo1").setPosition(20, 11.25f);
-		ufos.add(ufo);
+		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 
+		turretArray = new Array<>();
 		Turret milkLauncher = new Turret(assets);
 		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 5);
-		milkLauncher.target(ufo);
-		entityArray.add(milkLauncher);
+		turretArray.add(milkLauncher);
 
+		projectiles = new Array<>();
 
 		shapeRenderer = new ShapeRenderer();
 
@@ -175,13 +171,23 @@ public class Game implements Telegraph {
 
 	private void updateDefense(float delta) {
 		if (!isVisible) return;
-
-		for (Entity entity: entityArray) {
-			entity.update(delta);
+		Ufo first = null;
+		if (ufos.size > 0) {
+			first = ufos.get(0);
+		}
+		for (Turret turret: turretArray) {
+			turret.update(delta);
+			turret.target(first);
 		}
 
-		for(Ufo ufo:ufos) {
+		Iterator<Ufo> ufoIterator = ufos.iterator();
+		while (ufoIterator.hasNext()) {
+			Ufo ufo = ufoIterator.next();
 			ufo.update(delta);
+			if (ufo.needsRemoval()) {
+				ufoIterator.remove();
+				spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
+			}
 		}
 
 		for (int i = effects.size - 1; i >= 0; i--) {
@@ -228,8 +234,8 @@ public class Game implements Telegraph {
 			return;
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		for (Entity entity: entityArray) {
-			entity.draw(batch);
+		for (Turret turret: turretArray) {
+			turret.draw(batch);
 		}
 		for(Ufo ufo:ufos) {
 			ufo.draw(batch);
@@ -241,9 +247,10 @@ public class Game implements Telegraph {
 			projectile.draw(batch);
 		}
 		batch.end();
+
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-		for (Entity entity: entityArray) {
+		for (Entity entity: turretArray) {
 			entity.drawBounds(shapeRenderer);
 		}
 		for(Ufo ufo:ufos) {
@@ -260,7 +267,6 @@ public class Game implements Telegraph {
 			tick();
 		}
 		state.updateTS();
-		log(TAG, "Ticked " + times + " times!");
 	}
 
 	private void tick () {
@@ -286,7 +292,13 @@ public class Game implements Telegraph {
 		projectile.setDamage(1L);
 		projectile.setTarget(target.x, target.y);
 		projectiles.add(projectile);
+	}
 
+	private void spawnUfo(float x, float y) {
+		Ufo ufo = new Ufo(assets);
+		ufo.setRadius(5).setHealth(3).setAsset("ufo1")
+			.setPosition(x - ufo.getWidth() / 2, y - ufo.getHeight() / 2);
+		ufos.add(ufo);
 	}
 
 	@Override public boolean handleMessage (Telegram msg) {

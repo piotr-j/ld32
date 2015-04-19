@@ -3,6 +3,7 @@ package io.piotrjastrzebski.ld32.game.entities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import io.piotrjastrzebski.ld32.assets.Assets;
 
 import java.math.BigDecimal;
@@ -17,6 +18,13 @@ public class Ufo extends Entity {
 	public Ufo (Assets assets) {
 		super(assets);
 		health = BigDecimal.TEN;
+	}
+
+	@Override public Entity setAsset (String name) {
+		super.setAsset(name);
+		sprite.setScale(0.25f);
+
+		return this;
 	}
 
 	public float getRadius () {
@@ -44,9 +52,39 @@ public class Ufo extends Entity {
 		return health.compareTo(BigDecimal.ZERO) <= 0;
 	}
 
+	boolean justSpawned = true;
+	float spawnTimer = 0;
+	boolean needsRemoval = false;
+	float deathTimer = 0;
+	float idleTimer = 0;
+
 	@Override public void update (float delta) {
-		if (isDead()) {
-			sprite.setColor(Color.RED);
+		if (justSpawned) {
+			spawnTimer+=delta;
+			sprite.setScale(0.25f+spawnTimer);
+			if (spawnTimer >= .75f) {
+				justSpawned = false;
+			}
 		}
+
+		idleTimer += delta;
+		float offset = MathUtils.sin(idleTimer * MathUtils.PI)*0.01f;
+		sprite.setPosition(sprite.getX(), sprite.getY()-offset);
+
+		if (isDead()) {
+			deathTimer += delta;
+			sprite.setColor(1, 1, 1, MathUtils.clamp(1-deathTimer, 0, 1));
+			sprite.setPosition(sprite.getX(), sprite.getY()-0.1f);
+			if (deathTimer >= 5) {
+				needsRemoval = true;
+			}
+		}
+	}
+
+	public boolean isAttackable () {
+		return !justSpawned;
+	}
+	public boolean needsRemoval () {
+		return needsRemoval;
 	}
 }
