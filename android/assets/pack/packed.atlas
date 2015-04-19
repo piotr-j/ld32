@@ -1,26 +1,40 @@
 
 packed.png
-size: 319,230
+size: 328,238
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 milk-rocket
   rotate: false
-  xy: 260, 224
+  xy: 2, 2
   size: 59, 6
   orig: 59, 6
   offset: 0, 0
   index: -1
 milk-rocket-launcher
   rotate: false
-  xy: 2, 2
+  xy: 2, 10
   size: 84, 98
   orig: 84, 98
   offset: 0, 0
   index: -1
+milk1
+  rotate: false
+  xy: 260, 177
+  size: 68, 61
+  orig: 68, 61
+  offset: 0, 0
+  index: -1
+milk2
+  rotate: false
+  xy: 88, 76
+  size: 35, 32
+  orig: 35, 32
+  offset: 0, 0
+  index: -1
 ufo1
   rotate: false
-  xy: 2, 102
+  xy: 2, 110
   size: 256, 128
   orig: 256, 128
   offset: 0, 0
