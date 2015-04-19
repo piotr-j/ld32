@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.assets.Assets;
@@ -61,7 +62,9 @@ public class Game implements Telegraph {
 	Array<ParticleEffectPool.PooledEffect> effects;
 	ParticleEffectPool milkExpEffectPool;
 
-	public Game (ILogger logger, Assets assets) {
+	Pool<Projectile> projectilePool;
+
+	public Game (ILogger logger, final Assets assets) {
 		this.logger = logger;
 		this.assets = assets;
 		effects = new Array<>();
@@ -83,6 +86,11 @@ public class Game implements Telegraph {
 		turretArray.add(milkLauncher);
 
 		projectiles = new Array<>();
+		projectilePool = new Pool<Projectile>() {
+			@Override protected Projectile newObject () {
+				return new Projectile(assets);
+			}
+		};
 
 		shapeRenderer = new ShapeRenderer();
 
@@ -206,7 +214,7 @@ public class Game implements Telegraph {
 			if (projectile.isExploded()) {
 				createExplosion(projectile.getTarget());
 				damageUfos(projectile.getDamage(), projectile.getTargetCircle());
-				// TODO pool
+				projectilePool.free(projectile);
 				projIter.remove();
 			}
 		}
@@ -285,8 +293,7 @@ public class Game implements Telegraph {
 	}
 
 	private void fireMissile (Vector2 target, String type) {
-		if (projectiles.size > 0) return;
-		Projectile projectile = new Projectile(assets);
+		Projectile projectile = projectilePool.obtain();
 		projectile.setAsset("milk-rocket");
 		projectile.setPosition(6, 5);
 		projectile.setDamage(1L);
@@ -296,7 +303,7 @@ public class Game implements Telegraph {
 
 	private void spawnUfo(float x, float y) {
 		Ufo ufo = new Ufo(assets);
-		ufo.setRadius(5).setHealth(3).setAsset("ufo1")
+		ufo.setRadius(3).setHealth(10).setAsset("ufo1")
 			.setPosition(x - ufo.getWidth() / 2, y - ufo.getHeight() / 2);
 		ufos.add(ufo);
 	}

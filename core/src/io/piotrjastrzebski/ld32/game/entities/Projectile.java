@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.Game;
 
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 /**
  * Created by EvilEntity on 19/04/2015.
  */
-public class Projectile extends Entity {
+public class Projectile extends Entity implements Pool.Poolable{
 	BigDecimal damage;
 
 	public Projectile (Assets assets) {
@@ -25,9 +26,7 @@ public class Projectile extends Entity {
 
 
 	Vector2 pos = new Vector2(0, 0);
-	Vector2 speed = new Vector2(0, 0);
-	Vector2 baseAccel = new Vector2(1, 1);
-//	Vector2 accel = new Vector2(0, 0);
+	Vector2 speed = new Vector2(1, 1);
 	Vector2 target = new Vector2();
 	Circle targetCircle = new Circle();
 	Rectangle screenRect = new Rectangle(-2, -2, Game.VP_WIDTH + 4, Game.VP_HEIGHT + 4);
@@ -36,14 +35,7 @@ public class Projectile extends Entity {
 		target.set(x, y);
 		pos.set(getX(), getY());
 		float angle = target.sub(pos).angle();
-		baseAccel.setAngle(angle).scl(0.1f);
-
-//		float cos = (float)Math.cos(angle * MathUtils.degreesToRadians);
-//		float sin = (float)Math.sin(angle * MathUtils.degreesToRadians);
-//
-//		float newX = cos - sin;
-//		float newY = sin + cos;
-//		baseAccel.set(newX, newY).scl(0.1f);
+		speed.setAngle(angle).scl(0.1f);
 
 		targetCircle.set(x, y, 2);
 		sprite.rotate(angle);
@@ -57,21 +49,19 @@ public class Projectile extends Entity {
 	}
 
 	@Override public void reset() {
-		speed.set(0, 0);
+		speed.set(1, 1);
 		isExploded = false;
 	}
 
 	boolean isExploded = false;
 
 	@Override public void update (float delta) {
-		if (isExploded || baseAccel.isZero()) return;
+		if (isExploded || speed.isZero()) return;
 		pos.set(getX(), getY());
-//		speed.add(accel.set(baseAccel).scl(delta));
-		pos.add(baseAccel);//.scl(delta*10);
+		pos.add(speed);
 		sprite.setPosition(pos.x, pos.y);
 		if (targetCircle.contains(pos) || !screenRect.contains(pos)) {
 			isExploded = true;
-			Gdx.app.log("", "exploded at "+pos);
 		}
 	}
 
