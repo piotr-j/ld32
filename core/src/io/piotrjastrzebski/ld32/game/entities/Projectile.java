@@ -1,10 +1,8 @@
 package io.piotrjastrzebski.ld32.game.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
@@ -30,6 +28,10 @@ public class Projectile extends Entity implements Pool.Poolable{
 	Vector2 target = new Vector2();
 	Circle targetCircle = new Circle();
 	Rectangle screenRect = new Rectangle(-2, -2, Game.VP_WIDTH + 4, Game.VP_HEIGHT + 4);
+
+	public Projectile setTarget(Vector2 pos) {
+		return setTarget(pos.x, pos.y);
+	}
 
 	public Projectile setTarget(float x, float y) {
 		target.set(x, y);
