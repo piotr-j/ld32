@@ -129,6 +129,10 @@ public class Building {
 		this.listener = listener;
 	}
 
+	public Array<ResourceGenerator> getGenerators () {
+		return resourceGens;
+	}
+
 	public interface BuyListener {
 		void buySuccess(Building building);
 		void buyFailed(Building building);

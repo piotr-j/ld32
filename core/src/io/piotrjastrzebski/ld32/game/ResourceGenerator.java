@@ -59,4 +59,8 @@ public class ResourceGenerator {
 			return;
 		resource.add(amount.multiply(multiplier).multiply(BigDecimal.valueOf(mult)));
 	}
+
+	public void addMultiplier (long mult) {
+		multiplier = multiplier.add(BigDecimal.valueOf(mult));
+	}
 }

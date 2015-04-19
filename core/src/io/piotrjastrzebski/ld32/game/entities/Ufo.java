@@ -1,8 +1,5 @@
 package io.piotrjastrzebski.ld32.game.entities;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.piotrjastrzebski.ld32.assets.Assets;
@@ -16,10 +13,12 @@ import java.math.BigDecimal;
 public class Ufo extends Entity {
 	private float radius = 5;
 	private BigDecimal health;
+	private BigDecimal ufonium;
 
 	public Ufo (Assets assets) {
 		super(assets);
 		health = BigDecimal.TEN;
+		ufonium = BigDecimal.ONE;
 	}
 
 	@Override public Entity setAsset (String name) {
@@ -41,6 +40,12 @@ public class Ufo extends Entity {
 		this.health = BigDecimal.valueOf(health);
 		return this;
 	}
+
+	public Ufo setUfonium (long ufonium) {
+		this.ufonium = BigDecimal.valueOf(ufonium);
+		return this;
+	}
+
 
 	public void damage(long damage) {
 		health = health.subtract(BigDecimal.valueOf(damage));
@@ -105,5 +110,9 @@ public class Ufo extends Entity {
 	}
 	public boolean needsRemoval () {
 		return needsRemoval;
+	}
+
+	public BigDecimal getUfonium () {
+		return ufonium;
 	}
 }

@@ -10,11 +10,9 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.entities.Entity;
 import io.piotrjastrzebski.ld32.game.entities.Projectile;
@@ -127,7 +125,7 @@ public class Game implements Telegraph, Building.BuyListener {
 
 		currentLauncher++;
 	}
-
+	Resource ufonium;
 	public void init (State state) {
 		if (state == null)
 			return;
@@ -139,6 +137,7 @@ public class Game implements Telegraph, Building.BuyListener {
 		if (state.isFresh()) {
 			initFreshState();
 		}
+		ufonium = state.getResource(Constants.Resources.UFONIUM);
 		initListeners();
 		Building building = state.getBuilding(Constants.Building.MILK_LAUNCHER);
 		for (int i = 0; i < building.amount; i++) {
@@ -177,10 +176,12 @@ public class Game implements Telegraph, Building.BuyListener {
 		Resource ice = new Resource(Constants.Resources.ICE);
 		Resource lifeSupport = new Resource(Constants.Resources.LIFE_SUPPORT);
 		Resource rocketFuel = new Resource(Constants.Resources.ROCKET_FUEL);
+		Resource ufonium = new Resource(Constants.Resources.UFONIUM);
 		state.addResource(spaceBux);
 		state.addResource(ice);
 		state.addResource(lifeSupport);
 		state.addResource(rocketFuel);
+		state.addResource(ufonium);
 		log(TAG, "Fresh state!");
 		// TODO load initial state form json
 
@@ -220,6 +221,7 @@ public class Game implements Telegraph, Building.BuyListener {
 		turret.addInitialCost(spaceBux.name, 100);
 		turret.addInitialCost(ice.name, 200);
 		turret.addInitialCost(lifeSupport.name, 200);
+		turret.setMaxAmount(8);
 		state.addBuilding(turret);
 
 		Building turretUpgradeDamage = new Building(Constants.Building.MILK_LAUNCHER_UPGRADE_DAMAGE);
@@ -241,6 +243,10 @@ public class Game implements Telegraph, Building.BuyListener {
 		turretUpgradeRockets.addInitialCost(rocketFuel.name, 2000);
 		turretUpgradeRockets.setMaxAmount(4);
 		state.addBuilding(turretUpgradeRockets);
+
+		Building mult = new Building(Constants.Building.UFONIUM_REACTOR);
+		mult.addInitialCost(ufonium.name, 10);
+		state.addBuilding(mult);
 
 	}
 
@@ -318,6 +324,7 @@ public class Game implements Telegraph, Building.BuyListener {
 			Ufo ufo = ufoIterator.next();
 			ufo.update(delta);
 			if (ufo.needsRemoval()) {
+				ufonium.add(ufo.getUfonium());
 				ufoIterator.remove();
 				spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
 			}
@@ -434,6 +441,7 @@ public class Game implements Telegraph, Building.BuyListener {
 		int ufoLevel = state.getUfoLevel() + 1;
 		ufo.setRadius(3).setHealth(10*ufoLevel).setAsset("ufo1")
 			.setPosition(x - ufo.getWidth() / 2, y - ufo.getHeight() / 2);
+		ufo.setUfonium(ufoLevel);
 		ufos.add(ufo);
 		state.setUfoLevel(ufoLevel);
 	}
@@ -477,6 +485,17 @@ public class Game implements Telegraph, Building.BuyListener {
 		case Constants.Building.MILK_LAUNCHER_UPGRADE_RELOAD:
 			upgradeReloadSpeed();
 			break;
+		case Constants.Building.UFONIUM_REACTOR:
+			upgradeMultiplier();
+			break;
+		}
+	}
+
+	private void upgradeMultiplier () {
+		for (Building building:state.getBuildings()) {
+			for (ResourceGenerator generator:building.getGenerators()) {
+				generator.addMultiplier(3);
+			}
 		}
 	}
 

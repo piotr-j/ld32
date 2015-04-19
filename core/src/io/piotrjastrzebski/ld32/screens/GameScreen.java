@@ -1,7 +1,6 @@
 package io.piotrjastrzebski.ld32.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ai.msg.Telegram;
@@ -23,7 +22,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 //import com.strongjoshua.console.Console;
-import io.piotrjastrzebski.ld32.Constants;
+import io.piotrjastrzebski.ld32.game.Constants;
 import io.piotrjastrzebski.ld32.LD32;
 import io.piotrjastrzebski.ld32.game.Building;
 import io.piotrjastrzebski.ld32.game.Game;

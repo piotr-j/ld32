@@ -1,4 +1,4 @@
-package io.piotrjastrzebski.ld32;
+package io.piotrjastrzebski.ld32.game;
 
 /**
  * Created by EvilEntity on 18/04/2015.
@@ -13,6 +13,7 @@ public class Constants {
 		public final static String HELIYM_3 = "helium-3";
 		public final static String TITANIUM = "titanium";
 		public final static String ENERGY = "energy";
+		public final static String UFONIUM = "ufonium";
 	}
 
 	public class Building {
@@ -25,5 +26,6 @@ public class Constants {
 		public final static String MILK_LAUNCHER_UPGRADE_ROCKETS = "mrl-rockets";
 		public final static String MILK_LAUNCHER_UPGRADE_RELOAD = "mrl-reload";
 		public static final String MILK_LAUNCHER_UPGRADE_DAMAGE = "mrl-damage";
+		public static final String UFONIUM_REACTOR = "ufonium-reactor";
 	}
 }
