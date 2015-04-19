@@ -45,6 +45,14 @@ public abstract class Entity implements Pool.Poolable, Telegraph{
 		return sprite.getY();
 	}
 
+	public float getWidth() {
+		return sprite.getWidth();
+	}
+
+	public float getHeight() {
+		return sprite.getHeight();
+	}
+
 	public void draw(Batch batch) {
 		if (sprite == null) return;
 		sprite.draw(batch);
