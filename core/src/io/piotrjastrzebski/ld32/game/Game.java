@@ -68,12 +68,12 @@ public class Game implements Telegraph, Building.BuyListener {
 
 	private float[] launcherPositions = {
 		8, 1, 0,
-		3, 7, 0,
-		1, 10, 0,
-		3, 3, 0,
-		VP_WIDTH - 8, 1, 1,
 		VP_WIDTH - 3, 7, 1,
+		1, 10, 0,
+		VP_WIDTH - 8, 1, 1,
+		3, 7, 0,
 		VP_WIDTH - 1, 10, 1,
+		3, 3, 0,
 		VP_WIDTH - 3, 3, 1
 	};
 
