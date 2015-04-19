@@ -6,11 +6,21 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.assets.Assets;
+import io.piotrjastrzebski.ld32.game.entities.Entity;
+import io.piotrjastrzebski.ld32.game.entities.Projectile;
+import io.piotrjastrzebski.ld32.game.entities.Turret;
+import io.piotrjastrzebski.ld32.game.entities.Ufo;
 import io.piotrjastrzebski.ld32.game.state.State;
+
+import java.math.BigDecimal;
+import java.util.Iterator;
 
 /**
  * Main entry point for game
@@ -41,20 +51,36 @@ public class Game implements Telegraph {
 	private OrthographicCamera camera;
 	private ExtendViewport viewport;
 
-	TextureAtlas.AtlasSprite ufo;
+	ShapeRenderer shapeRenderer;
+
+	Array<Entity> entityArray;
+	Array<Projectile> projectiles;
+	Array<Ufo> ufos;
 
 	public Game (ILogger logger, Assets assets) {
 		this.logger = logger;
+		this.assets = assets;
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(VP_WIDTH, VP_HEIGHT, camera);
 
-		ufo = new TextureAtlas.AtlasSprite(assets.getRegion("ufo1"));
-		ufo.setPosition(0, 0);
-		ufo.setSize(ufo.getWidth() * SCALE, ufo.getHeight() * SCALE);
-
 		dispatcher = MessageManager.getInstance();
+		dispatcher.addListener(this, Msg.FIRE_MILK_MISSILE);
 
-		// TODO load buildings and resources from json
+		entityArray = new Array<>();
+		projectiles = new Array<>();
+		ufos = new Array<>();
+		Ufo ufo = new Ufo(assets);
+		ufo.setRadius(5).setHealth(10).setAsset("ufo1").setPosition(20, 11.25f);
+		ufos.add(ufo);
+
+		Turret milkLauncher = new Turret(assets);
+		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 5);
+		milkLauncher.target(ufo);
+		entityArray.add(milkLauncher);
+
+
+		shapeRenderer = new ShapeRenderer();
+
 	}
 
 	public void init (State state) {
@@ -119,7 +145,7 @@ public class Game implements Telegraph {
 
 	}
 
-	public void tap () {
+	public void tap (float x, float y) {
 
 	}
 
@@ -128,6 +154,7 @@ public class Game implements Telegraph {
 	public boolean update (float delta) {
 		if (!isInit)
 			return false;
+		updateDefense(delta);
 		tickAcc += delta;
 		if (tickAcc >= S_PER_TICK) {
 			tickAcc -= S_PER_TICK;
@@ -137,14 +164,71 @@ public class Game implements Telegraph {
 		return false;
 	}
 
+	private void updateDefense(float delta) {
+		if (!isVisible) return;
+
+		for (Entity entity: entityArray) {
+			entity.update(delta);
+		}
+
+		for(Ufo ufo:ufos) {
+			ufo.update(delta);
+		}
+		Iterator<Projectile> projIter = projectiles.iterator();
+		while (projIter.hasNext()) {
+			Projectile projectile = projIter.next();
+			projectile.update(delta);
+			if (projectile.isExploded()) {
+				createExplosion(projectile.getTarget());
+				damageUfos(projectile.getDamage(), projectile.getTargetCircle());
+				// TODO pool
+				projIter.remove();
+			}
+		}
+	}
+
+	private void damageUfos (BigDecimal damage, Circle target) {
+		// TODO
+		for (Ufo ufo:ufos) {
+
+		}
+	}
+
+	private void createExplosion (Vector2 target) {
+		createExplosion(target.x, target.y);
+	}
+
+	private void createExplosion (float x, float y) {
+
+	}
+
 	public void draw (Batch batch) {
 		if (!isInit || !isVisible)
 			return;
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		ufo.draw(batch);
-
+		for (Entity entity: entityArray) {
+			entity.draw(batch);
+		}
+		for(Ufo ufo:ufos) {
+			ufo.draw(batch);
+		}
+		for(Projectile projectile: projectiles) {
+			projectile.draw(batch);
+		}
 		batch.end();
+		shapeRenderer.setProjectionMatrix(camera.combined);
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+		for (Entity entity: entityArray) {
+			entity.drawBounds(shapeRenderer);
+		}
+		for(Ufo ufo:ufos) {
+			ufo.drawBounds(shapeRenderer);
+		}
+		for(Projectile projectile: projectiles) {
+			projectile.drawBounds(shapeRenderer);
+		}
+		shapeRenderer.end();
 	}
 
 	private void tick (long times) {
@@ -170,7 +254,24 @@ public class Game implements Telegraph {
 		logger.log(tag, msg);
 	}
 
+	private void fireMissile (Vector2 target, String type) {
+		if (projectiles.size > 0) return;
+		Projectile projectile = new Projectile(assets);
+		projectile.setAsset("milk-rocket");
+		projectile.setPosition(6, 5);
+		projectile.setDamage(1L);
+		projectile.setTarget(target.x, target.y);
+		projectiles.add(projectile);
+
+	}
+
 	@Override public boolean handleMessage (Telegram msg) {
+		switch (msg.message) {
+		case Msg.FIRE_MILK_MISSILE:
+			fireMissile((Vector2)msg.extraInfo, "milk-missile");
+			break;
+
+		}
 		return false;
 	}
 
