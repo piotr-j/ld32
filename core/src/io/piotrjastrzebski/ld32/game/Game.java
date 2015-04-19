@@ -133,6 +133,9 @@ public class Game implements Telegraph, Building.BuyListener {
 			return;
 		isInit = true;
 		this.state = state;
+		turretArray.clear();
+		ufos.clear();
+		projectiles.clear();
 		if (state.isFresh()) {
 			initFreshState();
 		}

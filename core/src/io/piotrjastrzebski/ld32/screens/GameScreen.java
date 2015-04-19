@@ -50,7 +50,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private int SAVE_TIMER = 10;
 
 	private final Preferences prefs;
-	private final Game game;
+	private Game game;
 	private final Stage stage;
 //	private Console console;
 	private final InputMultiplexer multiplexer;
@@ -222,14 +222,19 @@ public class GameScreen extends BaseScreen implements ILogger {
 		} else {
 			// TODO amount from tech or something
 			State state = game.getState();
-			Building iceB = state.getBuilding(Constants.Building.ICE_HARVESTER);
+
 			Building sbB = state.getBuilding(Constants.Building.SPACE_BANK);
+			if (sbB == null) return;
 			Resource spaceBux = state.getResource(Constants.Resources.SPACE_BUX);
 			long sbAmount = MathUtils.clamp((long)(sbB.getAmount() * 0.1f), 1L, Long.MAX_VALUE);
-			long iceAmount = MathUtils.clamp((long)(iceB.getAmount()*0.1f), 1L, Long.MAX_VALUE);
 			spaceBux.add(BigDecimal.valueOf(sbAmount));
+
+			Building iceB = state.getBuilding(Constants.Building.ICE_HARVESTER);
+			if (iceB == null) return;
 			Resource ice = state.getResource(Constants.Resources.ICE);
+			long iceAmount = MathUtils.clamp((long)(iceB.getAmount() * 0.1f), 1L, Long.MAX_VALUE);
 			ice.add(BigDecimal.valueOf(iceAmount));
+
 			final VisLabel label = new VisLabel();
 			stage.addActor(label);
 			label.setText("+"+sbAmount+" SB +"+iceAmount+" ICE");
@@ -241,10 +246,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 		}
 	}
 
-	private String currentTab = "";
 	private void selectTab(String name) {
-		if (currentTab.equals(name)) return;
-		currentTab = name;
 		tabContainer.clear();
 		tabContainer.add(tabs.get(name)).expand().fill();
 		switch (name) {
@@ -308,6 +310,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 				saveState();
 				createGUI();
 				updateGUI();
+				selectTab(TAB_PRODUCTION);
 			}
 		});
 		tab.add(resetButton);
