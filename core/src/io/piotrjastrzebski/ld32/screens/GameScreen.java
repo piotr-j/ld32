@@ -7,6 +7,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -48,11 +49,13 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private final Stage stage;
 	private Console console;
 	private final InputMultiplexer multiplexer;
+	private TextureAtlas.AtlasRegion background;
 
 	private StateSerializer serializer;
 
 	public GameScreen (LD32 base) {
 		super(base);
+		background = assets.getRegion("bg");
 		prefs = Gdx.app.getPreferences(PREFS);
 		multiplexer = new InputMultiplexer();
 		stage = new Stage(new ScreenViewport(), batch);
@@ -396,6 +399,13 @@ public class GameScreen extends BaseScreen implements ILogger {
 	@Override public void draw () {
 		Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		batch.setProjectionMatrix(stage.getCamera().combined);
+		batch.begin();
+		batch.disableBlending();
+		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		batch.end();
+
+		batch.enableBlending();
 		game.draw(batch);
 		stage.draw();
 		console.draw();
