@@ -1,5 +1,6 @@
 package io.piotrjastrzebski.ld32.game.entities;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.piotrjastrzebski.ld32.assets.Assets;
 import io.piotrjastrzebski.ld32.game.Msg;
@@ -39,7 +40,12 @@ public class Turret extends Entity {
 		if (fireCD >= FIRE_COOLDOWN) {
 			fireCD -= FIRE_COOLDOWN;
 			// TODO use radius to plot random position
-			targetPos.set(target.getX()+target.getWidth()/2, target.getY()+target.getHeight()/2);
+			float xOffset = target.getWidth()/2;
+			float yOffset = target.getHeight()/2;
+			float radius = target.getRadius();
+			targetPos.set(
+				target.getX()+xOffset+MathUtils.random(-radius, radius),
+				target.getY()+yOffset+MathUtils.random(-radius, radius));
 			dispatcher.dispatchMessage(this, Msg.FIRE_MILK_MISSILE, targetPos);
 		}
 	}
