@@ -1,5 +1,6 @@
 package io.piotrjastrzebski.ld32.game.entities;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import io.piotrjastrzebski.ld32.assets.Assets;
@@ -73,5 +74,9 @@ public class Turret extends Entity {
 
 	public String getProjType () {
 		return projType;
+	}
+
+	public TextureAtlas.AtlasSprite getSprite () {
+		return sprite;
 	}
 }

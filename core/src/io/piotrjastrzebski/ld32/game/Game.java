@@ -85,6 +85,17 @@ public class Game implements Telegraph {
 		Turret milkLauncher = new Turret(assets, "milk-rocket");
 		milkLauncher.setAsset("milk-rocket-launcher").setPosition(6, 3);
 		turretArray.add(milkLauncher);
+		Turret milkLauncher2 = new Turret(assets, "milk-rocket");
+		milkLauncher2.setAsset("milk-rocket-launcher").setPosition(3, 7);
+		turretArray.add(milkLauncher2);
+		Turret milkLauncher3 = new Turret(assets, "milk-rocket");
+		milkLauncher3.setAsset("milk-rocket-launcher").setPosition(VP_WIDTH - 6-milkLauncher.getWidth(), 3);
+		milkLauncher3.getSprite().flip(true, false);
+		turretArray.add(milkLauncher3);
+		Turret milkLauncher4 = new Turret(assets, "milk-rocket");
+		milkLauncher4.setAsset("milk-rocket-launcher").setPosition(VP_WIDTH - 3-milkLauncher.getWidth(), 7);
+		milkLauncher4.getSprite().flip(true, false);
+		turretArray.add(milkLauncher4);
 
 		projectiles = new Array<>();
 		projectilePool = new Pool<Projectile>() {
@@ -247,11 +258,11 @@ public class Game implements Telegraph {
 		for(Ufo ufo:ufos) {
 			ufo.draw(batch);
 		}
-		for (ParticleEffectPool.PooledEffect effect:effects) {
-			effect.draw(batch);
-		}
 		for(Projectile projectile: projectiles) {
 			projectile.draw(batch);
+		}
+		for (ParticleEffectPool.PooledEffect effect:effects) {
+			effect.draw(batch);
 		}
 		for (Turret turret: turretArray) {
 			turret.draw(batch);

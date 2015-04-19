@@ -266,7 +266,6 @@ public class GameScreen extends BaseScreen implements ILogger {
 
 	private VisTable createDefenseTab() {
 		VisTable tab = new VisTable(true);
-		tab.add(new VisLabel(TAB_DEFENSE));
 
 		return tab;
 	}
