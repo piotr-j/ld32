@@ -28,10 +28,10 @@ public class SplashScreen extends BaseScreen {
 	}
 
 	@Override public void draw () {
-		Gdx.gl.glClearColor(0.8f, 0.4f, 0.4f, 1);
+		Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(img, 0, 0);
+		batch.draw(img, 20, 20);
 		batch.end();
 	}
 }
