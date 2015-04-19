@@ -61,9 +61,12 @@ public class Ufo extends Entity {
 	@Override public void update (float delta) {
 		if (justSpawned) {
 			spawnTimer+=delta;
+			sprite.setColor(1, 1, 1, 0.25f+spawnTimer);
 			sprite.setScale(0.25f+spawnTimer);
 			if (spawnTimer >= .75f) {
 				justSpawned = false;
+				sprite.setColor(1,1,1,1);
+				sprite.setScale(1);
 			}
 		}
 
@@ -73,7 +76,9 @@ public class Ufo extends Entity {
 
 		if (isDead()) {
 			deathTimer += delta;
-			sprite.setColor(1, 1, 1, MathUtils.clamp(1-deathTimer, 0, 1));
+			float clamp = MathUtils.clamp(1 - deathTimer, 0, 1);
+			sprite.setColor(1, 1, 1, clamp);
+			sprite.setScale(1);
 			sprite.setPosition(sprite.getX(), sprite.getY()-0.1f);
 			if (deathTimer >= 5) {
 				needsRemoval = true;
