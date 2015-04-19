@@ -9,22 +9,20 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.util.dialog.DialogUtils;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.strongjoshua.console.Console;
+//import com.strongjoshua.console.Console;
 import io.piotrjastrzebski.ld32.Constants;
 import io.piotrjastrzebski.ld32.LD32;
 import io.piotrjastrzebski.ld32.game.Building;
@@ -54,7 +52,7 @@ public class GameScreen extends BaseScreen implements ILogger {
 	private final Preferences prefs;
 	private final Game game;
 	private final Stage stage;
-	private Console console;
+//	private Console console;
 	private final InputMultiplexer multiplexer;
 	private TextureAtlas.AtlasRegion background;
 
@@ -71,16 +69,18 @@ public class GameScreen extends BaseScreen implements ILogger {
 		VisUI.load();
 		// enabled markup so we can color text
 		BitmapFont defFont = VisUI.getSkin().get("default-font", BitmapFont.class);
-		defFont.getData().markupEnabled = true;
+		defFont.setMarkupEnabled(true);
+//		defFont.getData().markupEnabled = true;
 		BitmapFont smallFont = VisUI.getSkin().get("small-font", BitmapFont.class);
-		smallFont.getData().markupEnabled = true;
+		smallFont.setMarkupEnabled(true);
+//		smallFont.getData().markupEnabled = true;
 
-		console = new Console(VisUI.getSkin(), false);
-		console.setKeyID(Input.Keys.F2);
-//		console.setCommandExecutor(new GameCE(this));
-		console.setSizePercent(100, 40);
-		console.setPositionPercent(0, 60);
-		multiplexer.addProcessor(console.getInputProcessor());
+//		console = new Console(VisUI.getSkin(), false);
+//		console.setKeyID(Input.Keys.F2);
+////		console.setCommandExecutor(new GameCE(this));
+//		console.setSizePercent(100, 40);
+//		console.setPositionPercent(0, 60);
+//		multiplexer.addProcessor(console.getInputProcessor());
 
 		Gdx.input.setInputProcessor(multiplexer);
 
@@ -89,6 +89,8 @@ public class GameScreen extends BaseScreen implements ILogger {
 		initState();
 		createGUI();
 		updateGUI();
+		DialogUtils.showOKDialog(stage, "Welcome!",
+			"Click on empty space to get some resources!\nBuy stuff to defend from aliens!");
 	}
 
 	private void initState () {
@@ -464,13 +466,13 @@ public class GameScreen extends BaseScreen implements ILogger {
 		batch.enableBlending();
 		game.draw(batch);
 		stage.draw();
-		console.draw();
+//		console.draw();
 	}
 
 	@Override public void resize (int width, int height) {
 		super.resize(width, height);
 		stage.getViewport().update(width, height, true);
-		console.refresh();
+//		console.refresh();
 		game.resize(width, height);
 	}
 
@@ -484,12 +486,12 @@ public class GameScreen extends BaseScreen implements ILogger {
 
 	@Override public void dispose () {
 		super.dispose();
-		console.dispose();
+//		console.dispose();
 		VisUI.dispose();
 	}
 
 	@Override public void log (String tag, String msg) {
-		console.log(tag + " : " + msg);
+//		console.log(tag + " : " + msg);
 		Gdx.app.log(tag, msg);
 	}
 

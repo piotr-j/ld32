@@ -3,7 +3,7 @@
 <module rename-to="html">
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.kotcrab.vis.vis-ui' />
-	<inherits name='com.strongjoshua.console' />
+	<!--<inherits name='com.strongjoshua.console' />-->
 	<inherits name='com.badlogic.gdx.ai' />
 
 	<inherits name='io.piotrjastrzebski.ld32.GdxDefinition' />

@@ -186,8 +186,7 @@ public class Game implements Telegraph, Building.BuyListener {
 		spaceBuxGen.setMultiplier(1);
 		Building spaceBank = new Building(Constants.Building.SPACE_BANK);
 		spaceBank.addGenerator(spaceBuxGen);
-		spaceBank.addInitialCost(spaceBux.name, 1);
-		spaceBank.addAmount(1);
+		spaceBank.addInitialCost(spaceBux.name, 5);
 		state.addBuilding(spaceBank);
 
 		ResourceGenerator iceGen = new ResourceGenerator(ice.name);
@@ -195,7 +194,7 @@ public class Game implements Telegraph, Building.BuyListener {
 		iceGen.setMultiplier(1);
 		Building iceHarvester = new Building(Constants.Building.ICE_HARVESTER);
 		iceHarvester.addGenerator(iceGen);
-		iceHarvester.addInitialCost(spaceBux.name, 5);
+		iceHarvester.addInitialCost(spaceBux.name, 10);
 		state.addBuilding(iceHarvester);
 
 		ResourceGenerator fuelGen = new ResourceGenerator(rocketFuel.name);
