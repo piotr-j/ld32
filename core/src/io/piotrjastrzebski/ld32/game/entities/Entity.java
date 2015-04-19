@@ -20,7 +20,7 @@ public abstract class Entity implements Pool.Poolable, Telegraph{
 	protected final MessageDispatcher dispatcher;
 	protected TextureAtlas.AtlasSprite sprite;
 	protected Assets assets;
-	private Vector2 pos;
+	protected Vector2 pos;
 
 	public Entity(Assets assets) {
 		this.assets = assets;

@@ -90,6 +90,7 @@ public class Game implements Telegraph {
 
 		dispatcher = MessageManager.getInstance();
 		dispatcher.addListener(this, Msg.FIRE_MILK_MISSILE);
+		dispatcher.addListener(this, Msg.CREATE_EXP);
 
 		ufos = new Array<>();
 		spawnUfo(VP_WIDTH / 2, VP_HEIGHT / 2);
@@ -347,7 +348,9 @@ public class Game implements Telegraph {
 		case Msg.FIRE_MILK_MISSILE:
 			fireMissile((Turret)msg.extraInfo);
 			break;
-
+		case Msg.CREATE_EXP:
+			createExplosion((Vector2)msg.extraInfo);
+			break;
 		}
 		return false;
 	}

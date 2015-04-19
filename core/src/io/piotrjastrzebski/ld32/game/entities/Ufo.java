@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import io.piotrjastrzebski.ld32.assets.Assets;
+import io.piotrjastrzebski.ld32.game.Msg;
 
 import java.math.BigDecimal;
 
@@ -23,7 +25,6 @@ public class Ufo extends Entity {
 	@Override public Entity setAsset (String name) {
 		super.setAsset(name);
 		sprite.setScale(0.25f);
-
 		return this;
 	}
 
@@ -57,18 +58,20 @@ public class Ufo extends Entity {
 	boolean needsRemoval = false;
 	float deathTimer = 0;
 	float idleTimer = 0;
+	float yOffset = 10;
 
 	boolean deadSound = false;
-
+	boolean deadExp = false;
+	Vector2 deadPos = new Vector2();
 	@Override public void update (float delta) {
 		if (justSpawned) {
 			spawnTimer+=delta;
-			sprite.setColor(1, 1, 1, 0.25f+spawnTimer);
-			sprite.setScale(0.25f+spawnTimer);
+			sprite.setScale(0.25f + spawnTimer);
+			sprite.setPosition(pos.x, pos.y + yOffset * (0.75f-spawnTimer));
 			if (spawnTimer >= .75f) {
 				justSpawned = false;
-				sprite.setColor(1,1,1,1);
 				sprite.setScale(1);
+				sprite.setPosition(pos.x, pos.y);
 			}
 		}
 
@@ -83,10 +86,15 @@ public class Ufo extends Entity {
 			}
 			deathTimer += delta;
 			float clamp = MathUtils.clamp(1 - deathTimer/2, 0, 1);
-			sprite.setColor(1, 1, 1, clamp);
 			sprite.setScale(clamp);
-			sprite.setPosition(sprite.getX(), sprite.getY()-0.1f);
-			if (deathTimer >= 5) {
+			sprite.setPosition(sprite.getX(), sprite.getY() - 0.1f);
+			sprite.rotate(0.33f);
+			if (deathTimer >= 1.25f && !deadExp) {
+				deadExp = true;
+				sprite.setColor(1, 1, 1, 0);
+				dispatcher.dispatchMessage(this, Msg.CREATE_EXP, deadPos.set(sprite.getX()+sprite.getWidth()/2, sprite.getY()+sprite.getHeight()/2));
+			}
+			if (deathTimer >= 5f) {
 				needsRemoval = true;
 			}
 		}
