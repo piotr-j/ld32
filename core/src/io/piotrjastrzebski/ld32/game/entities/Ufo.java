@@ -36,6 +36,9 @@ public class Ufo extends Entity {
 	public void damage(long damage) {
 		health = health.subtract(BigDecimal.valueOf(damage));
 	}
+	public void damage(BigDecimal damage) {
+		health = health.subtract(damage);
+	}
 
 	public boolean isDead() {
 		return health.compareTo(BigDecimal.ZERO) <= 0;

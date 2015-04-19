@@ -6,6 +6,8 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
@@ -57,9 +59,16 @@ public class Game implements Telegraph {
 	Array<Projectile> projectiles;
 	Array<Ufo> ufos;
 
+	Array<ParticleEffectPool.PooledEffect> effects;
+	ParticleEffectPool milkExpEffectPool;
+
 	public Game (ILogger logger, Assets assets) {
 		this.logger = logger;
 		this.assets = assets;
+		effects = new Array<>();
+		milkExpEffectPool = new ParticleEffectPool(assets.getMilkExpEffect(), 5, 10);
+
+
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(VP_WIDTH, VP_HEIGHT, camera);
 
@@ -174,6 +183,16 @@ public class Game implements Telegraph {
 		for(Ufo ufo:ufos) {
 			ufo.update(delta);
 		}
+
+		for (int i = effects.size - 1; i >= 0; i--) {
+			ParticleEffectPool.PooledEffect effect = effects.get(i);
+			effect.update(delta);
+			if (effect.isComplete()) {
+				effect.free();
+				effects.removeIndex(i);
+			}
+		}
+
 		Iterator<Projectile> projIter = projectiles.iterator();
 		while (projIter.hasNext()) {
 			Projectile projectile = projIter.next();
@@ -190,7 +209,7 @@ public class Game implements Telegraph {
 	private void damageUfos (BigDecimal damage, Circle target) {
 		// TODO
 		for (Ufo ufo:ufos) {
-
+			ufo.damage(damage);
 		}
 	}
 
@@ -199,7 +218,9 @@ public class Game implements Telegraph {
 	}
 
 	private void createExplosion (float x, float y) {
-
+		ParticleEffectPool.PooledEffect effect = milkExpEffectPool.obtain();
+		effect.setPosition(x, y);
+		effects.add(effect);
 	}
 
 	public void draw (Batch batch) {
@@ -212,6 +233,9 @@ public class Game implements Telegraph {
 		}
 		for(Ufo ufo:ufos) {
 			ufo.draw(batch);
+		}
+		for (ParticleEffectPool.PooledEffect effect:effects) {
+			effect.draw(batch);
 		}
 		for(Projectile projectile: projectiles) {
 			projectile.draw(batch);
